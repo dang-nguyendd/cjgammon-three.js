@@ -1,90 +1,96 @@
 <html>
-<head>
+  <head>
     <title>threejs - models</title>
 
     <style>
-    	body{
-    		margin: 0;
-    		overflow: hidden;
-    	}
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
     <canvas id="myCanvas"></canvas>
-
     <script src="three.js"></script>
     <script src="GLTFLoader.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.3/dat.gui.min.js"></script>
     <script>
+      // load a texture, set wrap mode to repeat
+      const spaceTexture = new THREE.TextureLoader().load("space.jpeg");
 
-    var renderer,
-    	scene,
-    	camera,
-    	myCanvas = document.getElementById('myCanvas');
+      const uvTexture = new THREE.TextureLoader().load("texture6.png");
+      //   uvTexture.wrapS = THREE.RepeatWrapping;
+      //   uvTexture.wrapT = THREE.RepeatWrapping;
+      //   uvTexture.repeat.set(1, 1);
+      uvTexture.flipY = false;
+      const material = new THREE.MeshStandardMaterial({
+        map: uvTexture,
+      });
 
-    //RENDERER
-    renderer = new THREE.WebGLRenderer({
-      canvas: myCanvas, 
-      antialias: true
-    });
-    renderer.setClearColor(0x000000);
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight);
+      //RENDERER
+      renderer = new THREE.WebGLRenderer({
+        canvas: myCanvas,
+        antialias: true,
+      });
+      renderer.setClearColor(0x000000);
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.setSize(window.innerWidth, window.innerHeight);
 
-    //CAMERA
-    camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 1000 );
+      //CAMERA
+      camera = new THREE.PerspectiveCamera(
+        35,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+      );
 
-    //SCENE
-    scene = new THREE.Scene();
+      //SCENE
+      scene = new THREE.Scene();
 
-    //LIGHTS
-    var light = new THREE.AmbientLight(0xffffff, 0.5);
-    scene.add(light);
+      //LIGHTS
+      var light = new THREE.AmbientLight(0xffffff, 0.5);
+      scene.add(light);
 
-    var light2 = new THREE.PointLight(0xffffff, 0.5);
-    scene.add(light2);
-  
-    var loader = new THREE.GLTFLoader();
+      var light2 = new THREE.PointLight(0xffffff, 0.5);
+      scene.add(light2);
 
-    loader.load('untitled.glb', handle_load);
+      var loader = new THREE.GLTFLoader();
 
-    var mesh;
+      loader.load("sphere.glb", handle_load);
 
-    function handle_load(gltf) {
+      var mesh;
 
+      function handle_load(gltf) {
         console.log(gltf);
         mesh = gltf.scene;
         console.log(mesh.children[0]);
-        mesh.children[0].material = new THREE.MeshLambertMaterial();
-		scene.add( mesh );
+        mesh.children[0].material = material;
+        scene.add(mesh);
         mesh.position.z = -10;
-    }
+      }
 
+      //RENDER LOOP
+      render();
 
-    //RENDER LOOP
-    render();
+      var delta = 0;
+      var prevTime = Date.now();
 
-    var delta = 0;
-    var prevTime = Date.now();
-
-    function render() {
-
+      function render() {
         delta += 0.1;
 
         if (mesh) {
-        
-            mesh.rotation.y += 0.01;
+          mesh.rotation.y += 0.01;
 
-            //animation mesh
-            // mesh.morphTargetInfluences[ 0 ] = Math.sin(delta) * 20.0;
+          //animation mesh
+          // mesh.morphTargetInfluences[ 0 ] = Math.sin(delta) * 20.0;
         }
 
-    	renderer.render(scene, camera);
+        renderer.render(scene, camera);
 
-    	requestAnimationFrame(render);
-    }
+        requestAnimationFrame(render);
+      }
 
+      /////////////////////////////////////////////////////////////
     </script>
-</body>
+  </body>
 </html>
