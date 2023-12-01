@@ -11,86 +11,16 @@
   </head>
   <body>
     <canvas id="myCanvas"></canvas>
-    <script src="three.js"></script>
-    <script src="GLTFLoader.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.3/dat.gui.min.js"></script>
-    <script>
-      // load a texture, set wrap mode to repeat
-      const spaceTexture = new THREE.TextureLoader().load("space.jpeg");
-
-      const uvTexture = new THREE.TextureLoader().load("texture6.png");
-      //   uvTexture.wrapS = THREE.RepeatWrapping;
-      //   uvTexture.wrapT = THREE.RepeatWrapping;
-      //   uvTexture.repeat.set(1, 1);
-      uvTexture.flipY = false;
-      const material = new THREE.MeshStandardMaterial({
-        map: uvTexture,
-      });
-
-      //RENDERER
-      renderer = new THREE.WebGLRenderer({
-        canvas: myCanvas,
-        antialias: true,
-      });
-      renderer.setClearColor(0x000000);
-      renderer.setPixelRatio(window.devicePixelRatio);
-      renderer.setSize(window.innerWidth, window.innerHeight);
-
-      //CAMERA
-      camera = new THREE.PerspectiveCamera(
-        35,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        1000
-      );
-
-      //SCENE
-      scene = new THREE.Scene();
-
-      //LIGHTS
-      var light = new THREE.AmbientLight(0xffffff, 0.5);
-      scene.add(light);
-
-      var light2 = new THREE.PointLight(0xffffff, 0.5);
-      scene.add(light2);
-
-      var loader = new THREE.GLTFLoader();
-
-      loader.load("sphere.glb", handle_load);
-
-      var mesh;
-
-      function handle_load(gltf) {
-        console.log(gltf);
-        mesh = gltf.scene;
-        console.log(mesh.children[0]);
-        mesh.children[0].material = material;
-        scene.add(mesh);
-        mesh.position.z = -10;
-      }
-
-      //RENDER LOOP
-      render();
-
-      var delta = 0;
-      var prevTime = Date.now();
-
-      function render() {
-        delta += 0.1;
-
-        if (mesh) {
-          mesh.rotation.y += 0.01;
-
-          //animation mesh
-          // mesh.morphTargetInfluences[ 0 ] = Math.sin(delta) * 20.0;
+    <!-- <script src="scripts/three.js"></script>
+    <script src="scripts/GLTFLoader.js"></script> -->
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.138.0/build/three.module.js"
         }
-
-        renderer.render(scene, camera);
-
-        requestAnimationFrame(render);
       }
-
-      /////////////////////////////////////////////////////////////
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.3/dat.gui.min.js"></script>
+    <script type="module" src="scripts/index.js"></script>
   </body>
 </html>
