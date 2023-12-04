@@ -1,18 +1,23 @@
+/////////////////////////////////////////////////////////////
+////////////Using standard three.js library//////////////////
+/////////////////////////////////////////////////////////////
+
 import * as THREE from "https://cdn.skypack.dev/three@0.129.0/build/three.module.js";
-import { OrbitControls } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/loaders/GLTFLoader.js";
 import { GLTFExporter } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/exporters/GLTFExporter.js";
-
+import WebGL from "./WebGLApp.js";
+import ProjectedMaterial from "./ProjectedMaterial.js";
 // load a texture, set wrap mode to repeat
 const spaceTexture = new THREE.TextureLoader().load("textures/space.jpeg");
 
-const uvTexture = new THREE.TextureLoader().load("textures/texture7.png");
+const texture = new THREE.TextureLoader().load("textures/texture3.png");
 //   uvTexture.wrapS = THREE.RepeatWrapping;
 //   uvTexture.wrapT = THREE.RepeatWrapping;
 //   uvTexture.repeat.set(1, 1);
-uvTexture.flipY = false;
+texture.flipY = false;
+
 const material = new THREE.MeshStandardMaterial({
-  map: uvTexture,
+  map: texture,
 });
 
 //RENDERER
@@ -78,6 +83,7 @@ function render() {
   requestAnimationFrame(render);
 }
 
+/////////////////////////////////////////////////////////////
 ////////////Export result.glb and bind to "s" key////////////
 /////////////////////////////////////////////////////////////
 
