@@ -16,9 +16,9 @@ const texture = new THREE.TextureLoader().load("textures/texture3.png");
 //   uvTexture.repeat.set(1, 1);
 texture.flipY = false;
 
-const material = new THREE.MeshStandardMaterial({
-  map: texture,
-});
+// const material = new THREE.MeshStandardMaterial({
+//   map: texture,
+// });
 
 //RENDERER
 var renderer = new THREE.WebGLRenderer({
@@ -49,7 +49,7 @@ scene.add(light2);
 
 var loader = new GLTFLoader();
 
-loader.load("objects/Sphere.glb", handle_load);
+loader.load("outputs/Sphere_result (2).glb", handle_load);
 
 var mesh;
 
@@ -57,7 +57,7 @@ function handle_load(gltf) {
   console.log(gltf);
   mesh = gltf.scene;
   console.log(mesh.children[0]);
-  mesh.children[0].material = material;
+  // mesh.children[0].material = material;
   scene.add(mesh);
   mesh.position.z = -10;
 }

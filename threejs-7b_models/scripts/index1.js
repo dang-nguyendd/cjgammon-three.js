@@ -5,9 +5,10 @@
 import * as THREE from "three";
 import WebGLApp from "./WebGLApp.js";
 import { GLTFLoader } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/loaders/GLTFLoader.js";
+import { GLTFExporter } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/exporters/GLTFExporter.js";
 import ProjectedMaterial from "https://unpkg.com/three-projected-material/build/ProjectedMaterial.module.js";
 import { random } from "./math-utils.js";
-
+import { loadGltf, extractGeometry } from "./three-utils.js";
 // grab our canvas
 const canvas = document.querySelector("#myCanvas");
 
@@ -31,32 +32,15 @@ const texture = new THREE.TextureLoader().load(
   "textures/three-projected-material-4.png"
 );
 
-const geometry = new THREE.IcosahedronGeometry(1.3, 5);
-
-// var geometry;
-// const loader = new GLTFLoader();
-// // Load the glb file
-// loader.load("objects/Sphere.glb", function (gltf) {
-//   // The loaded object is a group containing the 3D model
-//   const model = gltf.scene;
-
-//   // Optionally, you can access individual meshes within the model
-//   model.traverse(function (child) {
-//     if (child instanceof THREE.Mesh) {
-//       // Access the mesh
-//       geometry = child.geometry;
-
-//       // Now you can work with the mesh, apply transformations, etc.
-//       console.log(geometry);
-//     }
-//   });
-// });
+// const geometry = new THREE.IcosahedronGeometry(1.3, 5);
+const gltf = await loadGltf("objects/Sphere.glb");
+const geometry = extractGeometry(gltf.scene);
 
 const material = new ProjectedMaterial({
   camera: webgl.camera,
   texture,
   color: "#59d8e8",
-  textureScale: 0.9,
+  textureScale: 0.5,
   flatShading: true,
   // works also if the mater is transparent
   // transparent: true,
@@ -101,3 +85,46 @@ webgl.scene.add(ambientLight);
 
 // start animation loop
 webgl.start();
+console.log(gltf);
+console.log(webgl.scene);
+console.log(mesh);
+console.log(material);
+/////////////////////////////////////////////////////////////
+////////////Export result.glb and bind to "s" key////////////
+/////////////////////////////////////////////////////////////
+
+function handleKeyPress(event) {
+  // Check if the pressed key is "s"
+  if (event.key == "s") {
+    download();
+    console.log('Key "s" pressed!');
+  }
+}
+
+// Add a keydown event listener to the document
+document.addEventListener("keydown", handleKeyPress);
+
+function download() {
+  const exporter = new GLTFExporter();
+  const options = { binary: true, embedImages: true };
+  exporter.parse(
+    mesh,
+    function (result) {
+      saveArrayBuffer(result, "Sphere_result.glb");
+    },
+    options
+  );
+}
+
+function saveArrayBuffer(buffer, fileName) {
+  save(new Blob([buffer], { type: "application/octetstream" }), fileName);
+}
+
+const link = document.createElement("a");
+document.body.appendChild(link);
+
+function save(blob, fileName) {
+  link.href = URL.createObjectURL(blob);
+  link.download = fileName;
+  link.click();
+}
