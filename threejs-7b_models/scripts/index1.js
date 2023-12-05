@@ -11,13 +11,13 @@ import { random } from "./math-utils.js";
 import { loadGltf, extractGeometry } from "./three-utils.js";
 // grab our canvas
 const canvas = document.querySelector("#myCanvas");
-
+const bg = new THREE.TextureLoader().load("textures/space.jpeg");
 // WebGLApp is a really basic wrapper around the three.js setup,
 // it hides all unnecessary stuff not related to this example
 const webgl = new WebGLApp({
   canvas,
   // set the scene background color
-  background: "#000000",
+  background: "#011110",
   // show the fps counter from stats.js
   showFps: true,
   // enable orbit-controls
@@ -26,50 +26,59 @@ const webgl = new WebGLApp({
 
 // attach it to the window to inspect in the console
 window.webgl = webgl;
-
-// load the texture with transparency
-const texture = new THREE.TextureLoader().load(
-  "textures/three-projected-material-4.png"
-);
-
-// const geometry = new THREE.IcosahedronGeometry(1.3, 5);
+webgl.background = bg;
+// const geometry = new THREE.IcosahedronGeometry(1.3, 20);
 const gltf = await loadGltf("objects/Sphere.glb");
 const geometry = extractGeometry(gltf.scene);
+geometry.clearGroups();
 
-const material = new ProjectedMaterial({
+// load the texture with transparency
+var texture;
+texture = new THREE.TextureLoader().load("textures/1.png");
+console.log(texture);
+
+var materials = [];
+var material;
+material = new ProjectedMaterial({
   camera: webgl.camera,
   texture,
-  color: "#59d8e8",
-  textureScale: 0.5,
+  textureScale: 1,
   flatShading: true,
-  // works also if the mater is transparent
-  // transparent: true,
-  // opacity: 0.5,
+  transparent: true,
 });
-// var loader = new GLTFLoader();
+materials.push(material);
 
-// loader.load("objects/Sphere.glb", handle_load);
+// reserve a group for the material on the geometry
+// https://stackoverflow.com/a/49708915
+geometry.addGroup(0, Infinity, 0);
+geometry.addGroup(0, Infinity, 1);
 
-// var mesh;
+texture = new THREE.TextureLoader().load("textures/2.png");
+console.log(texture);
 
-// function handle_load(gltf) {
-//   console.log(gltf);
-//   mesh = gltf.scene;
-//   console.log(mesh.children[0]);
-//   mesh.children[0].material = material;
-// }
+material = new ProjectedMaterial({
+  camera: webgl.camera,
+  texture,
+  textureScale: 1,
+  flatShading: true,
+  transparent: true,
+});
+materials.push(material);
+console.log(materials);
 
-const mesh = new THREE.Mesh(geometry, material);
-
+const mesh = new THREE.Mesh(geometry, materials);
+// mesh.scale.setScalar(2);
 // project the texture!
-material.project(mesh);
-
+// material.project(mesh);
+mesh.material[0].project(mesh);
+mesh.rotation.y = Math.PI;
+mesh.material[1].project(mesh);
 webgl.scene.add(mesh);
 
-mesh.rotation.y = Math.PI / 2;
-webgl.onUpdate(() => {
-  mesh.rotation.y -= 0.003;
-});
+// mesh.rotation.y = Math.PI / 2;
+// webgl.onUpdate(() => {
+//   mesh.rotation.y -= 0.003;
+// });
 
 // add lights
 const directionalLight = new THREE.DirectionalLight("#ffffff", 0.5);
@@ -83,12 +92,48 @@ webgl.scene.add(directionalLight2);
 const ambientLight = new THREE.AmbientLight("#ffffff", 0.6);
 webgl.scene.add(ambientLight);
 
-// start animation loop
+/////////////////////////////////////////////////////////////
+////////////Show data and bind to "clicking" mouse///////////
+/////////////////////////////////////////////////////////////
+
+webgl.onPointerUp((event, { x, y, dragX, dragY }) => {
+  // return if we used the orbit controls
+  if (Math.hypot(dragX, dragY) > 2) {
+    return;
+  }
+
+  // move the texture to where we clicked with the mouse
+  const center = new THREE.Vector2(webgl.width / 2, webgl.height / 2);
+
+  const mouse = new THREE.Vector2(x, y);
+  const offset = new THREE.Vector2().subVectors(center, mouse);
+  // convert it to 0 to 1 range
+  offset.divide(new THREE.Vector2(webgl.width, webgl.height));
+  offset.y *= -1;
+  webgl.scene.rotation.y += Math.PI / 2;
+  var rotation = webgl.scene.rotation;
+  var data = {
+    center,
+    mouse,
+    offset,
+    rotation,
+  };
+
+  console.log(data);
+  // convert from window coordinate system to WebGL
+  // coordinate system
+});
+
+/////////////////////////////////////////////////////////////
+////////////////////////start animation loop/////////////////
+/////////////////////////////////////////////////////////////
+
 webgl.start();
 console.log(gltf);
 console.log(webgl.scene);
 console.log(mesh);
 console.log(material);
+
 /////////////////////////////////////////////////////////////
 ////////////Export result.glb and bind to "s" key////////////
 /////////////////////////////////////////////////////////////
@@ -128,3 +173,23 @@ function save(blob, fileName) {
   link.download = fileName;
   link.click();
 }
+
+// //move the offset
+// mesh.material[0].project(mesh);
+// mesh.rotation.y = Math.PI;
+
+// mesh.material[1].project(mesh);
+// //move the offset
+// const center = new THREE.Vector2(webgl.width / 2, webgl.height / 2);
+// const mouse = new THREE.Vector2(500, 300);
+
+// const offset = new THREE.Vector2().subVectors(center, mouse);
+
+// // convert it to 0 to 1 range
+// offset.divide(new THREE.Vector2(webgl.width, webgl.height));
+
+// // convert from window coordinate system to WebGL
+// // coordinate system
+// offset.y *= -1;
+
+// mesh.material[1].textureOffset = offset;
