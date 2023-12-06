@@ -96,33 +96,70 @@ webgl.scene.add(ambientLight);
 ////////////Show data and bind to "clicking" mouse///////////
 /////////////////////////////////////////////////////////////
 
+// webgl.onPointerUp((event, { x, y, dragX, dragY }) => {
+//   // return if we used the orbit controls
+//   if (Math.hypot(dragX, dragY) > 2) {
+//     return;
+//   }
+
+//   // move the texture to where we clicked with the mouse
+//   const center = new THREE.Vector2(webgl.width / 2, webgl.height / 2);
+
+//   const mouse = new THREE.Vector2(x, y);
+//   const offset = new THREE.Vector2().subVectors(center, mouse);
+//   // convert it to 0 to 1 range
+//   offset.divide(new THREE.Vector2(webgl.width, webgl.height));
+//   offset.y *= -1;
+//   webgl.scene.rotation.y += Math.PI / 2;
+//   var rotation = webgl.scene.rotation;
+//   var data = {
+//     center,
+//     mouse,
+//     offset,
+//     rotation,
+//   };
+
+//   console.log(data);
+// });
+
+/////////////////////////////////////////////////////////////
+//////////////////////////Raycasting/////////////////////////
+/////////////////////////////////////////////////////////////
+
+// Assuming you have a webgl renderer, camera, and scene set up
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+
+function onMouseMove(event) {
+  // Convert mouse coordinates to normalized device coordinates (NDC)
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+}
+
+// Assume you have a function to handle the mouse click event
 webgl.onPointerUp((event, { x, y, dragX, dragY }) => {
   // return if we used the orbit controls
   if (Math.hypot(dragX, dragY) > 2) {
     return;
   }
+  // Update the raycaster with the current mouse coordinates
+  raycaster.setFromCamera(mouse, webgl.camera);
 
-  // move the texture to where we clicked with the mouse
-  const center = new THREE.Vector2(webgl.width / 2, webgl.height / 2);
+  // Perform raycasting to find intersected objects
+  const intersects = raycaster.intersectObjects(webgl.scene.children);
 
-  const mouse = new THREE.Vector2(x, y);
-  const offset = new THREE.Vector2().subVectors(center, mouse);
-  // convert it to 0 to 1 range
-  offset.divide(new THREE.Vector2(webgl.width, webgl.height));
-  offset.y *= -1;
-  webgl.scene.rotation.y += Math.PI / 2;
-  var rotation = webgl.scene.rotation;
-  var data = {
-    center,
-    mouse,
-    offset,
-    rotation,
-  };
+  if (intersects.length > 0) {
+    // Get the first intersection point (closest to the camera)
+    const intersectionPoint = intersects[0].point;
 
-  console.log(data);
-  // convert from window coordinate system to WebGL
-  // coordinate system
+    // Use intersectionPoint as the 3D world coordinates of the clicked pixel
+    console.log("Intersection Point:", intersectionPoint);
+  }
 });
+
+// Attach event listeners
+window.addEventListener("mousemove", onMouseMove, false);
+// window.addEventListener("click", onMouseClick, false);
 
 /////////////////////////////////////////////////////////////
 ////////////////////////start animation loop/////////////////
