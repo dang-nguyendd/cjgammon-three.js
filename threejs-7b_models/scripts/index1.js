@@ -17,7 +17,7 @@ const bg = new THREE.TextureLoader().load("textures/space.jpeg");
 const webgl = new WebGLApp({
   canvas,
   // set the scene background color
-  background: "#011110",
+  background: "#000000",
   // show the fps counter from stats.js
   showFps: true,
   // enable orbit-controls
@@ -151,9 +151,11 @@ webgl.onPointerUp((event, { x, y, dragX, dragY }) => {
   if (intersects.length > 0) {
     // Get the first intersection point (closest to the camera)
     const intersectionPoint = intersects[0].point;
-
+    const intersectionUV = intersects[0].uv;
     // Use intersectionPoint as the 3D world coordinates of the clicked pixel
+    console.log("Intersection:", intersects[0]);
     console.log("Intersection Point:", intersectionPoint);
+    console.log("Intersection UV:", intersectionUV);
   }
 });
 
@@ -211,22 +213,79 @@ function save(blob, fileName) {
   link.click();
 }
 
-// //move the offset
-// mesh.material[0].project(mesh);
-// mesh.rotation.y = Math.PI;
+// //Load texture
+// const textureLoader = new THREE.TextureLoader();
 
-// mesh.material[1].project(mesh);
-// //move the offset
-// const center = new THREE.Vector2(webgl.width / 2, webgl.height / 2);
-// const mouse = new THREE.Vector2(500, 300);
+// function loadTexture() {
+//   const texture = textureLoader.load("path/to/your/texture.jpg", () => {
+//     // This callback will be executed once the image is loaded
+//     const canvas = document.createElement("canvas");
+//     const ctx = canvas.getContext("2d");
 
-// const offset = new THREE.Vector2().subVectors(center, mouse);
+//     // Assuming uv coordinates are available
+//     const uv = { x: 0.5, y: 0.5 }; // Replace with actual uv coordinates
 
-// // convert it to 0 to 1 range
-// offset.divide(new THREE.Vector2(webgl.width, webgl.height));
+//     const x = uv.x * texture.image.width;
+//     const y = (1 - uv.y) * texture.image.height;
 
-// // convert from window coordinate system to WebGL
-// // coordinate system
-// offset.y *= -1;
+//     ctx.drawImage(texture.image, x, y, 1, 1, 0, 0, 1, 1);
 
-// mesh.material[1].textureOffset = offset;
+//     const pixelData = ctx.getImageData(0, 0, 1, 1).data;
+
+//     const color = new THREE.Color();
+//     color.setRGB(pixelData[0] / 255, pixelData[1] / 255, pixelData[2] / 255);
+
+//     console.log("Color at intersection point:", color);
+//   });
+
+//   // Set the onload event before assigning the src
+//   texture.image.onload = () => {
+//     // This event is triggered when the image is fully loaded
+//     console.log("Texture loaded successfully");
+//   };
+
+//   // Assign the src after setting the onload event
+//   texture.image.src = "path/to/your/texture.jpg";
+// }
+
+// // Call the function to load the texture
+// loadTexture();
+
+// function sampleTexture(texture, uv, color) {
+//   const canvas = document.createElement("canvas");
+//   const ctx = canvas.getContext("2d");
+//   ctx.drawImage(
+//     texture.image,
+//     uv.x * texture.image.width,
+//     (1 - uv.y) * texture.image.height,
+//     1,
+//     1,
+//     0,
+//     0,
+//     1,
+//     1
+//   );
+//   const pixelData = ctx.getImageData(0, 0, 1, 1).data;
+//   color.setRGB(pixelData[0] / 255, pixelData[1] / 255, pixelData[2] / 255);
+//   console.log("Color at intersection point:", color);
+// }
+
+// if (intersects.length > 0) {
+//   const intersection = intersects[0];
+
+//   // Assuming the object has a material with a texture
+//   const texture = intersection.object.material.map;
+
+//   // Sample the texture at the UV coordinates
+//   const uv = intersection.uv;
+//   const color = new THREE.Color();
+
+//   // Ensure texture is loaded before sampling
+//   if (texture.image.complete) {
+//     sampleTexture(texture, uv, color);
+//   } else {
+//     texture.image.onload = () => {
+//       sampleTexture(texture, uv, color);
+//     };
+//   }
+// }
