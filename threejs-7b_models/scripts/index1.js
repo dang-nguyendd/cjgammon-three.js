@@ -27,7 +27,7 @@ const webgl = new WebGLApp({
 // attach it to the window to inspect in the console
 window.webgl = webgl;
 webgl.background = bg;
-// const geometry = new THREE.IcosahedronGeometry(1.3, 20);
+// const geometry = new THREE.IcosahedronGeometry(1.3, 30);
 const gltf = await loadGltf("objects/Sphere.glb");
 const geometry = extractGeometry(gltf.scene);
 geometry.clearGroups();
@@ -153,6 +153,7 @@ webgl.onPointerUp((event, { x, y, dragX, dragY }) => {
     const intersectionPoint = intersects[0].point;
     const intersectionUV = intersects[0].uv;
     // Use intersectionPoint as the 3D world coordinates of the clicked pixel
+    console.log("Intersection array:", intersects);
     console.log("Intersection:", intersects[0]);
     console.log("Intersection Point:", intersectionPoint);
     console.log("Intersection UV:", intersectionUV);

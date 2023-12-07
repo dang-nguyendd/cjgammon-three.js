@@ -7,10 +7,35 @@
         margin: 0;
         overflow: hidden;
       }
+      #container {
+        position: relative;
+      }
+
+      #myCanvasvas1,
+      #demo {
+        position: absolute;
+        left: 0;
+        top: 0;
+      }
+
+      #myCanvasvas1 {
+        width: 100vw;
+        height: 100vh;
+      }
+
+      #demo {
+        width: 1920px;
+        height: 1080px;
+        bottom: 0;
+      }
     </style>
   </head>
   <body>
-    <canvas id="myCanvas"></canvas>
+    <div id="container">
+      <canvas id="myCanvas"></canvas>
+      <!-- <canvas id="demo"></canvas> -->
+    </div>
+
     <!-- <script src="scripts/three.js"></script>
     <script src="scripts/GLTFLoader.js"></script> -->
     <!-- <script type="importmap">

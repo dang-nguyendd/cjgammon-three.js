@@ -7,18 +7,32 @@ import { GLTFLoader } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/l
 import { GLTFExporter } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/exporters/GLTFExporter.js";
 import WebGL from "./WebGLApp.js";
 import ProjectedMaterial from "./ProjectedMaterial.js";
-// load a texture, set wrap mode to repeat
+
+// Get the canvas elements and their 2D contexts
+const demo = document.getElementById("demo");
+const ctx = demo.getContext("2d");
+// Create an Image object
+const img = new Image();
+img.src = "textures/texture4.png";
+
+// Wait for the image to load
+img.onload = function () {
+  // Draw the image onto the first canvas
+  ctx.drawImage(img, 0, 0, demo.width, demo.height);
+};
+
+// load a texture
 const spaceTexture = new THREE.TextureLoader().load("textures/space.jpeg");
 
-const texture = new THREE.TextureLoader().load("textures/texture3.png");
+const texture = new THREE.TextureLoader().load("textures/texture4.png");
 //   uvTexture.wrapS = THREE.RepeatWrapping;
 //   uvTexture.wrapT = THREE.RepeatWrapping;
 //   uvTexture.repeat.set(1, 1);
 texture.flipY = false;
 
-// const material = new THREE.MeshStandardMaterial({
-//   map: texture,
-// });
+const material = new THREE.MeshStandardMaterial({
+  map: texture,
+});
 
 //RENDERER
 var renderer = new THREE.WebGLRenderer({
@@ -49,7 +63,7 @@ scene.add(light2);
 
 var loader = new GLTFLoader();
 
-loader.load("outputs/Sphere_result (2).glb", handle_load);
+loader.load("objects/Sphere.glb", handle_load);
 
 var mesh;
 
@@ -57,7 +71,7 @@ function handle_load(gltf) {
   console.log(gltf);
   mesh = gltf.scene;
   console.log(mesh.children[0]);
-  // mesh.children[0].material = material;
+  mesh.children[0].material = material;
   scene.add(mesh);
   mesh.position.z = -10;
 }
