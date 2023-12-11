@@ -206,3 +206,15 @@ function normalizeCoordinates(x, y, width, height) {
   const normalizedY = 1 - (y / height) * 2;
   return { x: normalizedX, y: normalizedY };
 }
+
+function normalizeToZeroOne(originalValue, minValue, maxValue) {
+  return (originalValue - minValue) / (maxValue - minValue);
+}
+
+// Example usage
+const originalValue = 0.5; // Replace this with your actual value
+const minValue = -1.3;
+const maxValue = 1.3;
+
+const normalizedValue = normalizeToZeroOne(originalValue, minValue, maxValue);
+console.log(`Normalized Value: ${normalizedValue}`);
