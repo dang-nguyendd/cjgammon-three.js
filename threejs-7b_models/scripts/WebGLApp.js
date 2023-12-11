@@ -48,7 +48,7 @@ export default class WebGLApp {
     fov = 45,
     frustumSize = 3,
     near = 0.01,
-    far = 100,
+    far = 1000,
     ...options
   } = {}) {
     this.renderer = new WebGLRenderer({

@@ -27,28 +27,18 @@ const webgl = new WebGLApp({
 // attach it to the window to inspect in the console
 window.webgl = webgl;
 webgl.background = bg;
-const geometry = new THREE.IcosahedronGeometry(1.3, 30);
+// const geometry = new THREE.IcosahedronGeometry(1.3, 30);
 
 /*Loading Mesh file*/
 var gltf;
-// gltf = await loadGltf("objects/Sphere.glb");
-// const geometry = extractGeometry(gltf.scene);
-// geometry.clearGroups();
+gltf = await loadGltf("objects/Sphere.glb");
+const geometry = extractGeometry(gltf.scene);
+geometry.clearGroups();
 
 // load the texture with transparency
 var texture;
 texture = new THREE.TextureLoader().load("textures/1.png");
 console.log(texture);
-webgl.camera.zoom = 1;
-webgl.camera.position.normalize().multiplyScalar(100);
-
-// FOV calculating
-const angle = Math.atan2(
-  geometry.parameters.radius,
-  webgl.camera.position.distanceTo(new THREE.Vector3(0, 0, 0))
-);
-const angleDegrees = (angle * 180) / Math.PI;
-webgl.camera.fov = angleDegrees * 2;
 
 var materials = [];
 var material;
@@ -87,7 +77,7 @@ mesh.material[0].project(mesh);
 mesh.rotation.y = Math.PI;
 mesh.material[1].project(mesh);
 webgl.scene.add(mesh);
-mesh.rotation.y = Math.PI / 2;
+// mesh.rotation.y = Math.PI / 2;
 // webgl.camera.position.normalize().multiplyScalar(10);
 // webgl.onUpdate(() => {
 //   mesh.rotation.y -= 0.003;
