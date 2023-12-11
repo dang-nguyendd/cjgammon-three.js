@@ -37,8 +37,18 @@ var gltf;
 
 // load the texture with transparency
 var texture;
-texture = new THREE.TextureLoader().load("textures/1.png");
-console.log(texture);
+texture = new THREE.TextureLoader().load(
+  "textures/1.png",
+  function (loadedTexture) {
+    var image = loadedTexture.image;
+    console.log("Texture 1 Resolution:", image.width, "x", image.height);
+  }
+);
+
+// texture = new THREE.TextureLoader().load("textures/1.png", () => {
+//   const image = texture.image;
+//   console.log(image);
+// });
 webgl.camera.zoom = 1;
 webgl.camera.position.normalize().multiplyScalar(100);
 
@@ -55,7 +65,7 @@ var material;
 material = new ProjectedMaterial({
   camera: webgl.camera,
   texture,
-  textureScale: 1,
+  textureScale: 1.1,
   flatShading: true,
   transparent: true,
 });
@@ -66,18 +76,22 @@ materials.push(material);
 geometry.addGroup(0, Infinity, 0);
 geometry.addGroup(0, Infinity, 1);
 
-texture = new THREE.TextureLoader().load("textures/2.png");
-console.log(texture);
+texture = new THREE.TextureLoader().load(
+  "textures/2.png",
+  function (loadedTexture) {
+    var image = loadedTexture.image;
+    console.log("Texture 2 Resolution:", image.width, "x", image.height);
+  }
+);
 
 material = new ProjectedMaterial({
   camera: webgl.camera,
   texture,
-  textureScale: 1,
+  textureScale: 1.1,
   flatShading: true,
   transparent: true,
 });
 materials.push(material);
-console.log(materials);
 
 const mesh = new THREE.Mesh(geometry, materials);
 // mesh.scale.setScalar(2);
@@ -87,7 +101,7 @@ mesh.material[0].project(mesh);
 mesh.rotation.y = Math.PI;
 mesh.material[1].project(mesh);
 webgl.scene.add(mesh);
-mesh.rotation.y = Math.PI / 2;
+// mesh.rotation.y = Math.PI / 2;
 // webgl.camera.position.normalize().multiplyScalar(10);
 // webgl.onUpdate(() => {
 //   mesh.rotation.y -= 0.003;
@@ -182,15 +196,27 @@ window.addEventListener("mousemove", onMouseMove, false);
 /////////////////////////////////////////////////////////////
 
 webgl.start();
-console.log(gltf ? gltf : "");
-console.log(webgl.scene);
-console.log(mesh);
-console.log(material);
-console.log("Geometry Radius:", geometry.parameters.radius);
+console.log("I. ", gltf ? gltf : "");
+console.log("II. ", webgl.scene);
+console.log("III. ", mesh);
+console.log("IV. ", materials);
+console.log("V. Geometry Radius:", geometry.parameters.radius);
 console.log(
-  "Distance from camera to center of scene:",
+  "VI. Distance from camera to center of scene:",
   webgl.camera.position.distanceTo(new THREE.Vector3(0, 0, 0))
 );
+// console.log(
+//   "VII. Texture 1 Resolution:",
+//   materials[0].texture.image,
+//   "x",
+//   materials[0].texture.image
+// );
+// console.log(
+//   "VIII. Texture 2 Resolution:",
+//   materials[1].texture.image.width,
+//   "x",
+//   materials[1].texture.image.height
+// );
 
 /////////////////////////////////////////////////////////////
 ////////////Export result.glb and bind to "s" key////////////

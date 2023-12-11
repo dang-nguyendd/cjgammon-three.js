@@ -13,18 +13,37 @@ const demo = document.getElementById("demo");
 const ctx = demo.getContext("2d");
 // Create an Image object
 const img = new Image();
-img.src = "textures/texture4.png";
+img.src = "textures/1.png";
 
 // Wait for the image to load
 img.onload = function () {
-  // Draw the image onto the first canvas
-  ctx.drawImage(img, 0, 0, demo.width, demo.height);
+  const aspectRatio = img.width / img.height;
+
+  // Draw the image onto the canvas, maintaining the aspect ratio
+  const canvasWidth = demo.width;
+  const canvasHeight = demo.height;
+  ctx.drawImage(img, 0, 0, canvasWidth, canvasHeight);
+
+  // Calculate the aspect ratio of the canvas
+  const canvasAspectRatio = canvasWidth / canvasHeight;
+
+  // Draw a red dot at coordinates (x, y), adjusting for aspect ratio
+  drawDot(ctx, 90, 90, 1, "red");
 };
+
+// Function to draw a dot on the canvas
+function drawDot(context, x, y, radius, color) {
+  context.beginPath();
+  context.arc(x, y, radius, 0, 2 * Math.PI);
+  context.fillStyle = color;
+  context.fill();
+  context.closePath();
+}
 
 // load a texture
 const spaceTexture = new THREE.TextureLoader().load("textures/space.jpeg");
 
-const texture = new THREE.TextureLoader().load("textures/texture4.png");
+const texture = new THREE.TextureLoader().load("textures/texture2.png");
 //   uvTexture.wrapS = THREE.RepeatWrapping;
 //   uvTexture.wrapT = THREE.RepeatWrapping;
 //   uvTexture.repeat.set(1, 1);
@@ -136,4 +155,54 @@ function save(blob, fileName) {
   link.href = URL.createObjectURL(blob);
   link.download = fileName;
   link.click();
+}
+
+function cameraToImageCoordinates(cameraX, cameraY, imageWidth, imageHeight) {
+  const canvasWidth = imageWidth;
+  const canvasHeight = imageHeight;
+  // Calculate the aspect ratio of the canvas
+  const canvasAspectRatio = canvasWidth / canvasHeight;
+
+  // Calculate the aspect ratio of the image
+  const imageAspectRatio = imageWidth / imageHeight;
+
+  // Calculate the scaling factor for the width and height
+  const scaleWidth = canvasWidth / imageWidth;
+  const scaleHeight = canvasHeight / imageHeight;
+
+  // Calculate the normalized coordinates in the camera view (-1 to 1)
+  const normalizedX = cameraX / (canvasWidth / 2);
+  const normalizedY = cameraY / (canvasHeight / 2);
+
+  // Adjust for aspect ratio differences
+  const adjustedX = normalizedX * (canvasAspectRatio / imageAspectRatio);
+  const adjustedY = normalizedY;
+
+  // Map to image coordinates
+  const imageX = (adjustedX + 1) * (imageWidth / 2);
+  const imageY = (1 - adjustedY) * (imageHeight / 2);
+
+  return { imageX, imageY };
+}
+
+// Example usage
+const imageWidth = 490; // Width of the image
+const imageHeight = 490; // Height of the image
+
+const cameraX = 100; // Example camera X coordinate
+const cameraY = 100; // Example camera Y coordinate
+
+const { imageX, imageY } = cameraToImageCoordinates(
+  cameraX,
+  cameraY,
+  imageWidth,
+  imageHeight
+);
+
+console.log(`Image Coordinates: (${imageX}, ${imageY})`);
+
+function normalizeCoordinates(x, y, width, height) {
+  const normalizedX = (x / width) * 2 - 1;
+  const normalizedY = 1 - (y / height) * 2;
+  return { x: normalizedX, y: normalizedY };
 }

@@ -176,11 +176,11 @@ console.log(gltf ? gltf : "");
 console.log(webgl.scene);
 console.log(mesh);
 console.log(material);
-console.log("Geometry Radius:", geometry.parameters.radius);
-console.log(
-  "Distance from camera to center of scene:",
-  webgl.camera.position.distanceTo(new THREE.Vector3(0, 0, 0))
-);
+// console.log("Geometry Radius:", geometry.parameters.radius);
+// console.log(
+//   "Distance from camera to center of scene:",
+//   webgl.camera.position.distanceTo(new THREE.Vector3(0, 0, 0))
+// );
 
 /////////////////////////////////////////////////////////////
 ////////////Export result.glb and bind to "s" key////////////
