@@ -27,13 +27,13 @@ const webgl = new WebGLApp({
 // attach it to the window to inspect in the console
 window.webgl = webgl;
 webgl.background = bg;
-// const geometry = new THREE.IcosahedronGeometry(1.3, 30);
+const geometry = new THREE.IcosahedronGeometry(1.3, 30);
 
 /*Loading Mesh file*/
 var gltf;
-gltf = await loadGltf("objects/Sphere.glb");
-const geometry = extractGeometry(gltf.scene);
-geometry.clearGroups();
+// gltf = await loadGltf("objects/Sphere.glb");
+// const geometry = extractGeometry(gltf.scene);
+// geometry.clearGroups();
 
 // load the texture with transparency
 var texture;
@@ -77,7 +77,7 @@ mesh.material[0].project(mesh);
 mesh.rotation.y = Math.PI;
 mesh.material[1].project(mesh);
 webgl.scene.add(mesh);
-// mesh.rotation.y = Math.PI / 2;
+mesh.rotation.y = Math.PI / 2;
 // webgl.camera.position.normalize().multiplyScalar(10);
 // webgl.onUpdate(() => {
 //   mesh.rotation.y -= 0.003;

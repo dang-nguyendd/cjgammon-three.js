@@ -4,14 +4,11 @@
 
 import * as THREE from "three";
 import WebGLApp from "./WebGLApp.js";
-import { GLTFLoader } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/loaders/GLTFLoader.js";
-import { GLTFExporter } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/exporters/GLTFExporter.js";
+// import { GLTFExporter } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/exporters/GLTFExporter.js";
 import ProjectedMaterial from "https://unpkg.com/three-projected-material/build/ProjectedMaterial.module.js";
-import { random } from "./math-utils.js";
-import { loadGltf, extractGeometry } from "./three-utils.js";
+// import { loadGltf, extractGeometry } from "./three-utils.js";
 // grab our canvas
 const canvas = document.querySelector("#myCanvas");
-const bg = new THREE.TextureLoader().load("textures/space.jpeg");
 // WebGLApp is a really basic wrapper around the three.js setup,
 // it hides all unnecessary stuff not related to this example
 const webgl = new WebGLApp({
@@ -23,19 +20,36 @@ const webgl = new WebGLApp({
   // enable orbit-controls
   orbitControls: true,
 });
-
 // attach it to the window to inspect in the console
 window.webgl = webgl;
-webgl.background = bg;
-const geometry = new THREE.IcosahedronGeometry(1.3, 30);
 
 /*Loading Mesh file*/
 var gltf;
 // gltf = await loadGltf("objects/Sphere.glb");
 // const geometry = extractGeometry(gltf.scene);
 // geometry.clearGroups();
+//Alternative: Creating Sphere object
+const geometry = new THREE.IcosahedronGeometry(1.3, 30);
 
-// load the texture with transparency
+//Adjust camera settings for projection
+webgl.camera.zoom = 1;
+webgl.camera.position.normalize().multiplyScalar(1000);
+// FOV calculating
+const angle = Math.atan2(
+  geometry.parameters.radius,
+  webgl.camera.position.distanceTo(new THREE.Vector3(0, 0, 0))
+);
+const angleDegrees = (angle * 180) / Math.PI;
+webgl.camera.fov = angleDegrees * 2.1;
+
+var materials = [];
+var material;
+// reserve a group for the material on the geometry
+// https://stackoverflow.com/a/49708915
+geometry.addGroup(0, Infinity, 0);
+geometry.addGroup(0, Infinity, 1);
+
+// load the texture with transparent background
 var texture;
 texture = new THREE.TextureLoader().load(
   "textures/1.png",
@@ -45,36 +59,14 @@ texture = new THREE.TextureLoader().load(
   }
 );
 
-// texture = new THREE.TextureLoader().load("textures/1.png", () => {
-//   const image = texture.image;
-//   console.log(image);
-// });
-webgl.camera.zoom = 1;
-webgl.camera.position.normalize().multiplyScalar(100);
-
-// FOV calculating
-const angle = Math.atan2(
-  geometry.parameters.radius,
-  webgl.camera.position.distanceTo(new THREE.Vector3(0, 0, 0))
-);
-const angleDegrees = (angle * 180) / Math.PI;
-webgl.camera.fov = angleDegrees * 2;
-
-var materials = [];
-var material;
 material = new ProjectedMaterial({
   camera: webgl.camera,
   texture,
-  textureScale: 1.1,
+  textureScale: 1,
   flatShading: true,
   transparent: true,
 });
 materials.push(material);
-
-// reserve a group for the material on the geometry
-// https://stackoverflow.com/a/49708915
-geometry.addGroup(0, Infinity, 0);
-geometry.addGroup(0, Infinity, 1);
 
 texture = new THREE.TextureLoader().load(
   "textures/2.png",
@@ -87,25 +79,23 @@ texture = new THREE.TextureLoader().load(
 material = new ProjectedMaterial({
   camera: webgl.camera,
   texture,
-  textureScale: 1.1,
+  textureScale: 1,
   flatShading: true,
   transparent: true,
 });
 materials.push(material);
 
 const mesh = new THREE.Mesh(geometry, materials);
-// mesh.scale.setScalar(2);
-// project the texture!
-// material.project(mesh);
 mesh.material[0].project(mesh);
 mesh.rotation.y = Math.PI;
 mesh.material[1].project(mesh);
 webgl.scene.add(mesh);
+
 // mesh.rotation.y = Math.PI / 2;
 // webgl.camera.position.normalize().multiplyScalar(10);
 // webgl.onUpdate(() => {
 //   mesh.rotation.y -= 0.003;
-// });
+// });S
 
 // add lights
 const directionalLight = new THREE.DirectionalLight("#ffffff", 0.5);
@@ -153,7 +143,17 @@ webgl.scene.add(ambientLight);
 //////////////////////////Raycasting/////////////////////////
 /////////////////////////////////////////////////////////////
 
-// Assuming you have a webgl renderer, camera, and scene set up
+/*Normalisation*/
+function normaliseData(value) {
+  const maxValue = geometry.parameters.radius;
+  const minValue = -1 * maxValue;
+  // Ensure the value is within the specified range
+  value = Math.max(minValue, Math.min(maxValue, value));
+
+  // Normalize the value to [0, 1]
+  return (value - minValue) / (maxValue - minValue);
+}
+
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
@@ -180,10 +180,19 @@ webgl.onPointerUp((event, { x, y, dragX, dragY }) => {
     const intersectionPoint = intersects[0].point;
     const intersectionUV = intersects[0].uv;
     // Use intersectionPoint as the 3D world coordinates of the clicked pixel
+    console.log("****************************************");
     console.log("1. Intersection array:", intersects);
     console.log("2. Intersection:", intersects[0]);
     console.log("3. Intersection Point:", intersectionPoint);
-    console.log("4. Intersection UV:", intersectionUV);
+    console.log(
+      "4. Normalised XY:",
+      new THREE.Vector2(
+        normaliseData(intersectionPoint.x),
+        normaliseData(intersectionPoint.y)
+      )
+    );
+    console.log("5. Intersection UV:", intersectionUV);
+    console.log("****************************************");
   }
 });
 
@@ -205,18 +214,6 @@ console.log(
   "VI. Distance from camera to center of scene:",
   webgl.camera.position.distanceTo(new THREE.Vector3(0, 0, 0))
 );
-// console.log(
-//   "VII. Texture 1 Resolution:",
-//   materials[0].texture.image,
-//   "x",
-//   materials[0].texture.image
-// );
-// console.log(
-//   "VIII. Texture 2 Resolution:",
-//   materials[1].texture.image.width,
-//   "x",
-//   materials[1].texture.image.height
-// );
 
 /////////////////////////////////////////////////////////////
 ////////////Export result.glb and bind to "s" key////////////

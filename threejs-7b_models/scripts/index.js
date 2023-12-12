@@ -212,7 +212,7 @@ function normalizeToZeroOne(originalValue, minValue, maxValue) {
 }
 
 // Example usage
-const originalValue = 0.5; // Replace this with your actual value
+const originalValue = 33; // Replace this with your actual value
 const minValue = -1.3;
 const maxValue = 1.3;
 
