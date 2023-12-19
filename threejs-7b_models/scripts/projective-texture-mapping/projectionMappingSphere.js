@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////
 
 import * as THREE from "three";
-import WebGLApp from "./WebGLApp.js";
+import WebGLApp from "../WebGLApp.js";
 // import { GLTFExporter } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/exporters/GLTFExporter.js";
 import ProjectedMaterial from "https://unpkg.com/three-projected-material/build/ProjectedMaterial.module.js";
 // import { loadGltf, extractGeometry } from "./three-utils.js";

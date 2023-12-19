@@ -3,12 +3,12 @@
 /////////////////////////////////////////////////////////////
 
 import * as THREE from "three";
-import WebGLApp from "./WebGLApp.js";
+import WebGLApp from "../WebGLApp.js";
 import { GLTFLoader } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/loaders/GLTFLoader.js";
 import { GLTFExporter } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/exporters/GLTFExporter.js";
 import ProjectedMaterial from "https://unpkg.com/three-projected-material/build/ProjectedMaterial.module.js";
-import { random } from "./math-utils.js";
-import { loadGltf, extractGeometry } from "./three-utils.js";
+import { random } from "../math-utils.js";
+import { loadGltf, extractGeometry } from "../three-utils.js";
 // grab our canvas
 const canvas = document.querySelector("#myCanvas");
 // WebGLApp is a really basic wrapper around the three.js setup,
@@ -26,55 +26,37 @@ const webgl = new WebGLApp({
 // attach it to the window to inspect in the console
 window.webgl = webgl;
 // Create cube geometry with custom dimensions
-const cubeWidth = 2;
-const cubeHeight = 2;
-const cubeDepth = 2;
-const geometry = new THREE.BoxGeometry(cubeWidth, cubeHeight, cubeDepth);
+gltf = await loadGltf("./objects/suzanne.gltf");
+const geometry = extractGeometry(gltf.scene);
 geometry.clearGroups();
-//Adjust camera settings for projection
 webgl.camera.zoom = 1;
-webgl.camera.position.normalize().multiplyScalar(5);
-// FOV calculating
-const angle = Math.atan2(
-  geometry.parameters.height / 2,
-  webgl.camera.position.distanceTo(new THREE.Vector3(0, 0, 0)) -
-    geometry.parameters.depth / 2
-);
-const angleDegrees = (angle * 180) / Math.PI;
-webgl.camera.fov = angleDegrees * 2;
+// webgl.camera.position.normalize().multiplyScalar(5);
+// // FOV calculating
+// const angle = Math.atan2(
+//   geometry.parameters.height / 2,
+//   webgl.camera.position.distanceTo(new THREE.Vector3(0, 0, 0))
+// );
+// const angleDegrees = (angle * 180) / Math.PI;
+// webgl.camera.fov = angleDegrees * 2;
 
 /*Loading Mesh file*/
 var gltf;
 var texture;
+var material;
 texture = new THREE.TextureLoader().load("textures/uv.jpeg");
 console.log(texture);
 
-var materials = [];
-for (let i = 0; i < 6; i++) {
-  var material;
-  material = new ProjectedMaterial({
-    camera: webgl.camera,
-    texture,
-    textureScale: 1,
-    flatShading: true,
-    transparent: true,
-  });
-  materials.push(material);
-  geometry.addGroup(0, Infinity, i);
-}
-
-const mesh = new THREE.Mesh(geometry, materials);
-
-for (let i = 0; i < 4; i++) {
-  mesh.material[i].project(mesh);
-  mesh.rotation.y += Math.PI / 2;
-}
-mesh.rotation.x += Math.PI / 2;
-for (let i = 0; i < 2; i++) {
-  mesh.material[4 + i].project(mesh);
-  mesh.rotation.x += Math.PI;
-}
-mesh.rotation.x -= Math.PI / 2;
+var material;
+material = new ProjectedMaterial({
+  camera: webgl.camera,
+  side: THREE.DoubleSide,
+  texture,
+  textureScale: 1,
+  flatShading: true,
+  transparent: true,
+});
+const mesh = new THREE.Mesh(geometry, material);
+mesh.material.project(mesh);
 webgl.scene.add(mesh);
 
 // add lights
