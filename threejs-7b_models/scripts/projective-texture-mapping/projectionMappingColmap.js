@@ -9,6 +9,7 @@ import { GLTFExporter } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm
 import ProjectedMaterial from "https://unpkg.com/three-projected-material/build/ProjectedMaterial.module.js";
 import { random } from "../math-utils.js";
 import { loadGltf, extractGeometry } from "../three-utils.js";
+import "numeric";
 // grab our canvas
 const canvas = document.querySelector("#myCanvas");
 // WebGLApp is a really basic wrapper around the three.js setup,
@@ -34,7 +35,14 @@ geometry.clearGroups();
 //Adjust camera settings for projection
 webgl.camera.zoom = 1;
 
-webgl.camera.position.normalize().multiplyScalar(2);
+// Define the distance of the point in 3D
+const point = new THREE.Vector3(1.26092, -2.73594, 4.11874);
+const center = new THREE.Vector3(0, 0, 0);
+const distance = point.distanceTo(center);
+
+console.log("Distance from the point to the center:", distance);
+
+webgl.camera.position.normalize().multiplyScalar(distance);
 // FOV calculating
 const angle = Math.atan2(
   geometry.parameters.height / 2,
@@ -51,7 +59,20 @@ texture = new THREE.TextureLoader().load("textures/uv.jpeg");
 console.log(texture);
 
 var materials = [];
-var material;
+for (let i = 0; i < 2; i++) {
+  var material;
+  material = new ProjectedMaterial({
+    camera: webgl.camera,
+    texture,
+    textureScale: 1,
+    flatShading: true,
+    transparent: true,
+  });
+  materials.push(material);
+  geometry.addGroup(0, Infinity, i);
+}
+
+texture = new THREE.TextureLoader().load("textures/uv.png");
 material = new ProjectedMaterial({
   camera: webgl.camera,
   texture,
@@ -60,11 +81,57 @@ material = new ProjectedMaterial({
   transparent: true,
 });
 materials.push(material);
-geometry.addGroup(0, Infinity, 0);
+geometry.addGroup(0, Infinity, 2);
 
 const mesh = new THREE.Mesh(geometry, materials);
-mesh.material[0].project(mesh);
+// const quaternion = new THREE.Quaternion(
+//   -0.221083,
+//   0.468124,
+//   0.694217,
+//   0.500046
+// );
 
+const currentRotation = webgl.camera.rotation.clone();
+
+// Convert Euler angles to quaternion
+const quaternion = new THREE.Quaternion().setFromEuler(currentRotation);
+
+// Step 1: Invert quaternion1
+const invQuaternion1 = quaternion.clone().invert();
+
+// Step 2: Multiply quaternion1 by invQuaternion1 to get a double rotation
+const doubleRotation = quaternion.clone().multiply(invQuaternion1);
+
+// Step 3: Create a quaternion for a 180-degree rotation (angle in radians)
+const angle180 = Math.PI; // 180 degrees in radians
+const axis180 = new THREE.Vector3(1, 0, 0); // Choose an appropriate axis
+const quaternion180 = new THREE.Quaternion().setFromAxisAngle(
+  axis180,
+  angle180
+);
+
+// Step 4: Multiply quaternion1 by quaternion180 to get quaternion2
+const quaternion2 = quaternion.clone().multiply(quaternion180);
+
+console.log(quaternion2);
+
+console.log(quaternion);
+// console.log(x);
+// quaternion.normalize()
+// webgl.camera.setRotationFromQuaternion(quaternion);
+
+// for (let i = 0; i < 4; i++) {
+//   mesh.material[i].project(mesh);
+//   mesh.rotation.y += Math.PI / 2;
+// }
+// mesh.material[2].project(mesh);
+mesh.rotation.x += Math.PI / 2;
+for (let i = 0; i < 2; i++) {
+  mesh.material[i].project(mesh);
+  mesh.rotation.x += Math.PI;
+}
+mesh.rotation.x -= Math.PI / 2;
+mesh.material[2].project(mesh);
 // webgl.camera.setRotationFromQuaternion(quaternion);
 // webgl.orbitControls.update();
 webgl.scene.add(mesh);

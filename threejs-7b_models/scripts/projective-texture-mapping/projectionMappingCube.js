@@ -73,17 +73,37 @@ for (let i = 0; i < 6; i++) {
 }
 
 const mesh = new THREE.Mesh(geometry, materials);
-const quaternion = new THREE.Quaternion(
-  -0.221083,
-  0.468124,
-  0.694217,
-  0.500046
+// const quaternion = new THREE.Quaternion(
+//   -0.221083,
+//   0.468124,
+//   0.694217,
+//   0.500046
+// );
+
+const currentRotation = webgl.camera.rotation.clone();
+
+// Convert Euler angles to quaternion
+const quaternion = new THREE.Quaternion().setFromEuler(currentRotation);
+
+// Step 1: Invert quaternion1
+const invQuaternion1 = quaternion.clone().invert();
+
+// Step 2: Multiply quaternion1 by invQuaternion1 to get a double rotation
+const doubleRotation = quaternion.clone().multiply(invQuaternion1);
+
+// Step 3: Create a quaternion for a 180-degree rotation (angle in radians)
+const angle180 = Math.PI; // 180 degrees in radians
+const axis180 = new THREE.Vector3(1, 0, 0); // Choose an appropriate axis
+const quaternion180 = new THREE.Quaternion().setFromAxisAngle(
+  axis180,
+  angle180
 );
 
-const inverseQuaternion = quaternion.clone().invert();
+// Step 4: Multiply quaternion1 by quaternion180 to get quaternion2
+const quaternion2 = quaternion.clone().multiply(quaternion180);
 
-// Now inverseQuaternion contains the inverse of the original quaternion
-console.log(inverseQuaternion);
+console.log(quaternion2);
+
 console.log(quaternion);
 // console.log(x);
 // quaternion.normalize()
