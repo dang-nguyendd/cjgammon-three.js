@@ -2,6 +2,7 @@
   "dependencies": {
     "lil-gui": "^0.19.1",
     "npm": "^10.2.4",
+    "numeric": "^1.2.6",
     "three": "^0.158.0"
   }
 }

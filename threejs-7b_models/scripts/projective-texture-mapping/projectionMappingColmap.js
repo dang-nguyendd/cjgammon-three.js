@@ -9,7 +9,6 @@ import { GLTFExporter } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm
 import ProjectedMaterial from "https://unpkg.com/three-projected-material/build/ProjectedMaterial.module.js";
 import { random } from "../math-utils.js";
 import { loadGltf, extractGeometry } from "../three-utils.js";
-import "numeric";
 // grab our canvas
 const canvas = document.querySelector("#myCanvas");
 // WebGLApp is a really basic wrapper around the three.js setup,
@@ -35,14 +34,7 @@ geometry.clearGroups();
 //Adjust camera settings for projection
 webgl.camera.zoom = 1;
 
-// Define the distance of the point in 3D
-const point = new THREE.Vector3(1.26092, -2.73594, 4.11874);
-const center = new THREE.Vector3(0, 0, 0);
-const distance = point.distanceTo(center);
-
-console.log("Distance from the point to the center:", distance);
-
-webgl.camera.position.normalize().multiplyScalar(distance);
+webgl.camera.position.normalize().multiplyScalar(2);
 // FOV calculating
 const angle = Math.atan2(
   geometry.parameters.height / 2,
@@ -59,46 +51,20 @@ texture = new THREE.TextureLoader().load("textures/uv.jpeg");
 console.log(texture);
 
 var materials = [];
-for (let i = 0; i < 6; i++) {
-  var material;
-  material = new ProjectedMaterial({
-    camera: webgl.camera,
-    texture,
-    textureScale: 1,
-    flatShading: true,
-    transparent: true,
-  });
-  materials.push(material);
-  geometry.addGroup(0, Infinity, i);
-}
+var material;
+material = new ProjectedMaterial({
+  camera: webgl.camera,
+  texture,
+  textureScale: 1,
+  flatShading: true,
+  transparent: true,
+});
+materials.push(material);
+geometry.addGroup(0, Infinity, 0);
 
 const mesh = new THREE.Mesh(geometry, materials);
-const quaternion = new THREE.Quaternion(
-  -0.221083,
-  0.468124,
-  0.694217,
-  0.500046
-);
+mesh.material[0].project(mesh);
 
-const inverseQuaternion = quaternion.clone().invert();
-
-// Now inverseQuaternion contains the inverse of the original quaternion
-console.log(inverseQuaternion);
-console.log(quaternion);
-// console.log(x);
-// quaternion.normalize()
-// webgl.camera.setRotationFromQuaternion(quaternion);
-
-for (let i = 0; i < 4; i++) {
-  mesh.material[i].project(mesh);
-  mesh.rotation.y += Math.PI / 2;
-}
-mesh.rotation.x += Math.PI / 2;
-for (let i = 0; i < 2; i++) {
-  mesh.material[4 + i].project(mesh);
-  mesh.rotation.x += Math.PI;
-}
-mesh.rotation.x -= Math.PI / 2;
 // webgl.camera.setRotationFromQuaternion(quaternion);
 // webgl.orbitControls.update();
 webgl.scene.add(mesh);
