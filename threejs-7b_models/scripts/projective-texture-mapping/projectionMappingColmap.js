@@ -21,7 +21,7 @@ const webgl = new WebGLApp({
   // show the fps counter from stats.js
   showFps: true,
   // enable orbit-controls
-  orbitControls: true,
+  orbitControls: false,
 });
 
 // attach it to the window to inspect in the console
@@ -73,15 +73,17 @@ for (let i = 0; i < 2; i++) {
 }
 
 texture = new THREE.TextureLoader().load("textures/uv.png");
-material = new ProjectedMaterial({
-  camera: webgl.camera,
-  texture,
-  textureScale: 1,
-  flatShading: true,
-  transparent: true,
-});
-materials.push(material);
-geometry.addGroup(0, Infinity, 2);
+for (let i = 2; i < 4; i++) {
+  material = new ProjectedMaterial({
+    camera: webgl.camera,
+    texture,
+    textureScale: 1,
+    flatShading: true,
+    transparent: true,
+  });
+  materials.push(material);
+  geometry.addGroup(0, Infinity, i);
+}
 
 const mesh = new THREE.Mesh(geometry, materials);
 // const quaternion = new THREE.Quaternion(
@@ -90,35 +92,6 @@ const mesh = new THREE.Mesh(geometry, materials);
 //   0.694217,
 //   0.500046
 // );
-
-const currentRotation = webgl.camera.rotation.clone();
-
-// Convert Euler angles to quaternion
-const quaternion = new THREE.Quaternion().setFromEuler(currentRotation);
-
-// Step 1: Invert quaternion1
-const invQuaternion1 = quaternion.clone().invert();
-
-// Step 2: Multiply quaternion1 by invQuaternion1 to get a double rotation
-const doubleRotation = quaternion.clone().multiply(invQuaternion1);
-
-// Step 3: Create a quaternion for a 180-degree rotation (angle in radians)
-const angle180 = Math.PI; // 180 degrees in radians
-const axis180 = new THREE.Vector3(1, 0, 0); // Choose an appropriate axis
-const quaternion180 = new THREE.Quaternion().setFromAxisAngle(
-  axis180,
-  angle180
-);
-
-// Step 4: Multiply quaternion1 by quaternion180 to get quaternion2
-const quaternion2 = quaternion.clone().multiply(quaternion180);
-
-console.log(quaternion2);
-
-console.log(quaternion);
-// console.log(x);
-// quaternion.normalize()
-// webgl.camera.setRotationFromQuaternion(quaternion);
 
 // for (let i = 0; i < 4; i++) {
 //   mesh.material[i].project(mesh);
@@ -134,7 +107,6 @@ mesh.rotation.x -= Math.PI / 2;
 mesh.material[2].project(mesh);
 // webgl.camera.setRotationFromQuaternion(quaternion);
 // webgl.orbitControls.update();
-webgl.scene.add(mesh);
 
 // add lights
 const directionalLight = new THREE.DirectionalLight("#ffffff", 0.5);
@@ -201,8 +173,75 @@ window.addEventListener("mousemove", onMouseMove, false);
 ////////////////////////start animation loop/////////////////
 /////////////////////////////////////////////////////////////
 
+/*
+
+*/
+
+const currentRotation = webgl.camera.rotation.clone();
+
+// Convert Euler angles to quaternion
+const quaternion = new THREE.Quaternion().setFromEuler(currentRotation);
+
+// Step 1: Invert quaternion1
+const invQuaternion1 = quaternion.clone().invert();
+
+// Step 2: Multiply quaternion1 by invQuaternion1 to get a double rotation
+const doubleRotation = quaternion.clone().multiply(invQuaternion1);
+
+// Step 3: Create a quaternion for a 180-degree rotation (angle in radians)
+const angle180 = Math.PI; // 180 degrees in radians
+const axis180 = new THREE.Vector3(0, 1, 0); // Choose an appropriate axis
+const quaternion180 = new THREE.Quaternion().setFromAxisAngle(
+  axis180,
+  angle180
+);
+
+// Step 4: Multiply quaternion1 by quaternion180 to get quaternion2
+const quaternion2 = quaternion.clone().multiply(quaternion180);
+console.log("Quaternion 1:", quaternion);
+console.log("Quaternion 2:", quaternion2);
+
+// console.log(x);
+// quaternion.normalize()
+mesh.setRotationFromQuaternion(quaternion2);
+
+mesh.material[3].project(mesh);
+webgl.scene.add(mesh);
 webgl.start();
 console.log(gltf ? gltf : "");
 console.log(webgl.scene);
 console.log(mesh);
 console.log(material);
+
+function setCameraFromQuaternion() {}
+
+function quaternionToEuler(quaternion) {
+  // Create a new Euler object and set it from the quaternion
+  const euler = new THREE.Euler().setFromQuaternion(quaternion);
+
+  // Return the Euler angles in degrees
+  return {
+    x: THREE.MathUtils.radToDeg(euler.x),
+    y: THREE.MathUtils.radToDeg(euler.y),
+    z: THREE.MathUtils.radToDeg(euler.z),
+  };
+}
+
+// Example usage:
+const eulerAngles = quaternionToEuler(quaternion);
+
+console.log("Euler Angles:", eulerAngles);
+
+function quaternionAngle(quaternion1, quaternion2) {
+  // Calculate the angle between two quaternions
+  const angle = quaternion1.angleTo(quaternion2);
+
+  // Convert the angle from radians to degrees
+  const angleDegrees = THREE.MathUtils.radToDeg(angle);
+
+  return angleDegrees;
+}
+
+const angleBetween = quaternionAngle(quaternion, quaternion2);
+
+console.log("Angle Between Quaternions:", angleBetween);
