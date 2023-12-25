@@ -56,6 +56,7 @@ material = new ProjectedMaterial({
   transparent: true,
 });
 const mesh = new THREE.Mesh(geometry, material);
+
 mesh.material.project(mesh);
 webgl.scene.add(mesh);
 

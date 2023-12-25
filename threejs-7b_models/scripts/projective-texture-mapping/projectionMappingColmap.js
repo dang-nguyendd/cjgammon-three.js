@@ -180,15 +180,15 @@ window.addEventListener("mousemove", onMouseMove, false);
 const currentRotation = webgl.camera.rotation.clone();
 
 // Convert Euler angles to quaternion
-const quaternion = new THREE.Quaternion().setFromEuler(currentRotation);
+// const quaternion = new THREE.Quaternion().setFromEuler(currentRotation);
 
-// Step 1: Invert quaternion1
+// Invert quaternion1
 const invQuaternion1 = quaternion.clone().invert();
 
-// Step 2: Multiply quaternion1 by invQuaternion1 to get a double rotation
+// Multiply quaternion1 by invQuaternion1 to get a double rotation
 const doubleRotation = quaternion.clone().multiply(invQuaternion1);
 
-// Step 3: Create a quaternion for a 180-degree rotation (angle in radians)
+// Create a quaternion for a 180-degree rotation (angle in radians)
 const angle180 = Math.PI; // 180 degrees in radians
 const axis180 = new THREE.Vector3(0, 1, 0); // Choose an appropriate axis
 const quaternion180 = new THREE.Quaternion().setFromAxisAngle(
@@ -213,7 +213,25 @@ console.log(webgl.scene);
 console.log(mesh);
 console.log(material);
 
-function setCameraFromQuaternion() {}
+var x, y, z, w;
+const quaternion = new THREE.Quaternion(x, y, z, w);
+
+var tx, ty, tz;
+const tranlate = new THREE.Vector2(0.6, 0.6);
+tranlate.divide(new THREE.Vector2(webgl.width, webgl.height));
+
+function setCameraCalibration(quaternion, translate, tz) {
+  //Rotation
+  mesh.setRotationFromQuaternion(quaternion);
+  //Translation x, y
+  const center = new THREE.Vector2(webgl.width / 2, webgl.height / 2);
+  center.divide(new THREE.Vector2(webgl.width, webgl.height));
+  const offset = new THREE.Vector2().subVectors(center, mouse1);
+  offset.y *= -1;
+  mesh.material.textureOffset = offset;
+  //Translation z
+  webgl.camera.position.normalize().multiplyScalar(tz);
+}
 
 function quaternionToEuler(quaternion) {
   // Create a new Euler object and set it from the quaternion
@@ -243,5 +261,4 @@ function quaternionAngle(quaternion1, quaternion2) {
 }
 
 const angleBetween = quaternionAngle(quaternion, quaternion2);
-
 console.log("Angle Between Quaternions:", angleBetween);
