@@ -182,22 +182,27 @@ const currentRotation = webgl.camera.rotation.clone();
 // Convert Euler angles to quaternion
 // const quaternion = new THREE.Quaternion().setFromEuler(currentRotation);
 
-// Invert quaternion1
-const invQuaternion1 = quaternion.clone().invert();
+var axis = new THREE.Vector3(0, 1, 0); // Axis y assigned
+var radians = Math.PI;
 
-// Multiply quaternion1 by invQuaternion1 to get a double rotation
-const doubleRotation = quaternion.clone().multiply(invQuaternion1);
+function relativeCameraPose(quaternion, radians, axis) {
+  // Invert quaternion1
+  const invQuaternion1 = quaternion.clone().invert();
 
-// Create a quaternion for a 180-degree rotation (angle in radians)
-const angle180 = Math.PI; // 180 degrees in radians
-const axis180 = new THREE.Vector3(0, 1, 0); // Choose an appropriate axis
-const quaternion180 = new THREE.Quaternion().setFromAxisAngle(
-  axis180,
-  angle180
-);
+  // Multiply quaternion1 by invQuaternion1 to get a double rotation
+  const doubleRotation = quaternion.clone().multiply(invQuaternion1);
 
-// Step 4: Multiply quaternion1 by quaternion180 to get quaternion2
-const quaternion2 = quaternion.clone().multiply(quaternion180);
+  // Create a quaternion for a 180-degree rotation (angle in radians)
+  const angle180 = radians;
+  const axis180 = axis; // Choose an appropriate axis to transform
+  const quaternion180 = new THREE.Quaternion().setFromAxisAngle(
+    axis180,
+    angle180
+  );
+
+  return (quaternion2 = quaternion.clone().multiply(quaternion180));
+}
+
 console.log("Quaternion 1:", quaternion);
 console.log("Quaternion 2:", quaternion2);
 
@@ -260,5 +265,5 @@ function quaternionAngle(quaternion1, quaternion2) {
   return angleDegrees;
 }
 
-const angleBetween = quaternionAngle(quaternion, quaternion2);
+const angleBetween = quaternionAngle(quaternion1, quaternion2);
 console.log("Angle Between Quaternions:", angleBetween);
