@@ -9,6 +9,7 @@ import { GLTFExporter } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm
 import ProjectedMaterial from "https://unpkg.com/three-projected-material/build/ProjectedMaterial.module.js";
 import { random } from "../math-utils.js";
 import { loadGltf, extractGeometry } from "../three-utils.js";
+import "numeric";
 // grab our canvas
 const canvas = document.querySelector("#myCanvas");
 // WebGLApp is a really basic wrapper around the three.js setup,
@@ -16,55 +17,66 @@ const canvas = document.querySelector("#myCanvas");
 const webgl = new WebGLApp({
   canvas,
   // set the scene background color
-  background: "#000000",
+  background: "#000",
   // show the fps counter from stats.js
   showFps: true,
   // enable orbit-controls
   orbitControls: true,
-  cameraPosition: new THREE.Vector3(0, 0, 4),
+  cameraPosition: new THREE.Vector3(0, 0, 10),
+  gui: true,
 });
+const camera = new THREE.PerspectiveCamera(60, 1, 0.01, 30);
+camera.position.set(0, 0, 10);
+camera.lookAt(0, 0, 0);
+const helper = new THREE.CameraHelper(camera);
+webgl.scene.add(helper);
 
 // attach it to the window to inspect in the console
 window.webgl = webgl;
 // Create cube geometry with custom dimensions
-gltf = await loadGltf("./objects/suzanne.gltf");
-const geometry = extractGeometry(gltf.scene);
+const cubeWidth = 2;
+const cubeHeight = 2;
+const cubeDepth = 2;
+const geometry = new THREE.BoxGeometry(cubeWidth, cubeHeight, cubeDepth);
 geometry.clearGroups();
-webgl.camera.zoom = 1;
-webgl.camera.position.normalize().multiplyScalar(5);
-// webgl.camera.position.normalize().multiplyScalar(5);
-// // FOV calculating
-// const angle = Math.atan2(
-//   geometry.parameters.height / 2,
-//   webgl.camera.position.distanceTo(new THREE.Vector3(0, 0, 0))
-// );
-// const angleDegrees = (angle * 180) / Math.PI;
-// webgl.camera.fov = angleDegrees * 2;
 
 /*Loading Mesh file*/
 var gltf;
 var texture;
-var material;
-texture = new THREE.TextureLoader().load("textures/uv.jpeg");
+texture = new THREE.TextureLoader().load("textures/test_final_perspective.png");
 console.log(texture);
-
-const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 3);
-camera.position.set(0, 0, 4);
-camera.lookAt(0, 0, 0);
+// load the envMap
+const envMap = new THREE.TextureLoader().load("textures/bg.jpg");
+envMap.mapping = THREE.EquirectangularReflectionMapping;
 
 var material;
 material = new ProjectedMaterial({
-  camera: camera,
-  side: THREE.DoubleSide,
+  camera,
   texture,
-  textureScale: 1,
+  envMap,
+  textureScale: 2,
   flatShading: true,
   transparent: true,
 });
+webgl.scene.background = envMap;
+webgl.gui.add({ scaling: 2 }, "scaling", 0, 2);
+
+webgl.gui.onChange((scaling) => {
+  material.textureScale = scaling.value;
+  console.log(scaling.value);
+});
 const mesh = new THREE.Mesh(geometry, material);
-const helper = new THREE.CameraHelper(camera);
-webgl.scene.add(helper);
+const quaternion = new THREE.Quaternion(
+  -0.221083,
+  0.468124,
+  0.694217,
+  0.500046
+);
+mesh.setRotationFromQuaternion(quaternion);
 mesh.material.project(mesh);
+
+// webgl.camera.setRotationFromQuaternion(quaternion);
+// webgl.orbitControls.update();
 webgl.scene.add(mesh);
 
 // add lights
@@ -73,7 +85,7 @@ directionalLight.position.set(0, 10, 10);
 webgl.scene.add(directionalLight);
 
 const directionalLight2 = new THREE.DirectionalLight("#ffffff", 0.2);
-directionalLight2.position.set(10, 0, -10);
+directionalLight2.position.set(10, 0, -5);
 webgl.scene.add(directionalLight2);
 
 const ambientLight = new THREE.AmbientLight("#ffffff", 0.6);
@@ -99,7 +111,7 @@ webgl.onPointerUp((event, { x, y, dragX, dragY }) => {
   }
 
   // Update the raycaster with the current mouse coordinates
-  raycaster.setFromCamera(mouse, camera);
+  raycaster.setFromCamera(mouse, webgl.camera);
 
   // Perform raycasting to find intersected objects
   const intersects = raycaster.intersectObjects(webgl.scene.children);

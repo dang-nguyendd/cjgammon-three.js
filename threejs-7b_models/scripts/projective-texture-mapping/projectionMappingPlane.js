@@ -6,7 +6,7 @@ import * as THREE from "three";
 import WebGLApp from "../WebGLApp.js";
 import { GLTFLoader } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/loaders/GLTFLoader.js";
 import { GLTFExporter } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/exporters/GLTFExporter.js";
-import ProjectedMaterial from "https://unpkg.com/three-projected-material/build/ProjectedMaterial.module.js";
+import ProjectedMaterial from "./projectedMaterial.js";
 import { random } from "../math-utils.js";
 import { loadGltf, extractGeometry } from "../three-utils.js";
 import {
@@ -30,6 +30,22 @@ const webgl = new WebGLApp({
   // enable orbit-controls
   orbitControls: true,
 });
+
+const camera = new THREE.OrthographicCamera(
+  webgl.width / -2,
+  webgl.width / 2,
+  webgl.height / 2,
+  webgl.height / -2,
+  0.01,
+  1000
+);
+webgl.camera = camera;
+
+// Update the camera used by the renderer
+webgl.camera.updateProjectionMatrix();
+
+const helper = new THREE.CameraHelper(webgl.camera);
+webgl.scene.add(helper);
 
 // attach it to the window to inspect in the console
 window.webgl = webgl;

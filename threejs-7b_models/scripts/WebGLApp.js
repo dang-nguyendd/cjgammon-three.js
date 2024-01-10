@@ -9,7 +9,7 @@ import {
 } from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import Stats from "three/addons/libs/stats.module.js";
-// import GUI from "lil-gui";
+import GUI from "https://cdn.jsdelivr.net/npm/lil-gui@0.19/+esm";
 // import { ColorManagement } from "three";
 
 export default class WebGLApp {
@@ -43,7 +43,7 @@ export default class WebGLApp {
   }
 
   constructor({
-    background = "#111",
+    background = "#fff",
     backgroundAlpha = 1,
     fov = 45,
     frustumSize = 3,
@@ -209,14 +209,14 @@ export default class WebGLApp {
       document.body.appendChild(this.stats.dom);
     }
 
-    //   // initialize the gui
-    //   if (options.gui) {
-    //     this.gui = new GUI();
+    // initialize the gui
+    if (options.gui) {
+      this.gui = new GUI();
 
-    //     if (options.guiClosed) {
-    //       this.gui.close();
-    //     }
-    //   }
+      if (options.guiClosed) {
+        this.gui.close();
+      }
+    }
   }
 
   get width() {

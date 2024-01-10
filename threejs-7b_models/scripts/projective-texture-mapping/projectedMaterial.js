@@ -6,6 +6,10 @@ export default class ProjectedMaterial extends THREE.MeshPhysicalMaterial {
   #camera;
   #cover;
   #textureScale;
+  // #width = 960;
+  // #height = 500;
+  // #aspect = this.width / this.height;
+  // #D = 1;
 
   get camera() {
     return this.#camera;
@@ -154,7 +158,6 @@ export default class ProjectedMaterial extends THREE.MeshPhysicalMaterial {
       if (this.camera.isOrthographicCamera) {
         shader.defines.ORTHOGRAPHIC = "";
       }
-
       shader.vertexShader = monkeyPatch(shader.vertexShader, {
         header: /* glsl */ `
           uniform mat4 viewMatrixCamera;
@@ -184,15 +187,16 @@ export default class ProjectedMaterial extends THREE.MeshPhysicalMaterial {
             savedModelMatrix3
           );
           #endif
-
+          
           vSavedNormal = mat3(savedModelMatrix) * normal;
           vTexCoords = projectionMatrixCamera * viewMatrixCamera * savedModelMatrix * vec4(position, 1.0);
+          savedModelMatrix = 1.0 / savedModelMatrix;
           #ifndef ORTHOGRAPHIC
           vWorldPosition = savedModelMatrix * vec4(position, 1.0);
+          // vZPosition = vec4()
           #endif
         `,
       });
-
       shader.fragmentShader = monkeyPatch(shader.fragmentShader, {
         header: /* glsl */ `
           uniform sampler2D projectedTexture;
@@ -217,7 +221,7 @@ export default class ProjectedMaterial extends THREE.MeshPhysicalMaterial {
         `,
         "vec4 diffuseColor = vec4( diffuse, opacity );": /* glsl */ `
           // clamp the w to make sure we don't project behind
-          float w = max(vTexCoords.w, 0.0);
+          float w = max(vTexCoords.w,0.0);
 
           vec2 uv = (vTexCoords.xy / w) * 0.5 + 0.5;
 
