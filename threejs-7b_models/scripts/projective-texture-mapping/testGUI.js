@@ -54,12 +54,12 @@ material = new ProjectedMaterial({
   camera,
   texture,
   envMap,
-  textureScale: 2,
+  textureScale: 1,
   flatShading: true,
   transparent: true,
 });
 webgl.scene.background = envMap;
-webgl.gui.add({ scaling: 2 }, "scaling", 0, 2);
+webgl.gui.add({ scaling: 1 }, "scaling", 0, 2);
 
 webgl.gui.onChange((scaling) => {
   material.textureScale = scaling.value;
@@ -134,6 +134,7 @@ webgl.onPointerUp((event, { x, y, dragX, dragY }) => {
       console.log("Material Side:", materialSide);
     }
   }
+  getColor();
 });
 
 // Attach event listeners
@@ -149,3 +150,38 @@ console.log(gltf ? gltf : "");
 console.log(webgl.scene);
 console.log(mesh);
 console.log(material);
+
+function getColor() {
+  // Get the canvas elements and their 2D contexts
+  const demo = document.getElementById("demo");
+  const ctx = demo.getContext("2d");
+  // Create an Image object
+  const img = new Image();
+  img.src = captureImage();
+
+  // Wait for the image to load
+  img.onload = function () {
+    const aspectRatio = img.width / img.height;
+
+    // Draw the image onto the canvas, maintaining the aspect ratio
+    const canvasWidth = demo.width;
+    const canvasHeight = demo.height;
+    ctx.drawImage(img, 0, 0, canvasWidth, canvasHeight);
+
+    // Calculate the aspect ratio of the canvas
+    const canvasAspectRatio = canvasWidth / canvasHeight;
+
+    //   // Draw a red dot at coordinates (x, y), adjusting for aspect ratio
+    //   drawDot(ctx, 90, 90, 1, "red");
+  };
+}
+
+function captureImage() {
+  const renderer = new THREE.WebGLRenderer();
+  // renderer.setSize(webgl.height, webgl.width);
+  renderer.render(webgl.scene, webgl.camera);
+  // Capture the rendered image as a data URL
+  const imageDataURL = renderer.domElement.toDataURL("image/png");
+  console.log(imageDataURL);
+  return imageDataURL;
+}
