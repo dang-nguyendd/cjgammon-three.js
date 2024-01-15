@@ -10,9 +10,6 @@ loader.load("textures/uv.jpeg", (texture) => {
   const context = canvas.getContext("2d");
   context.drawImage(texture.image, 0, 0);
 
-  const data = context.getImageData(0, 0, canvas.width, canvas.height);
-  console.log(data);
-
   // invert colors
   //   for (let i = 0; i < data.data.length; i += 4) {
   //     data.data[i] = 255 - data.data[i];

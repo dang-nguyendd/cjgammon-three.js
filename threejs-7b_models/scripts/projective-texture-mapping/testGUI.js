@@ -134,7 +134,7 @@ webgl.onPointerUp((event, { x, y, dragX, dragY }) => {
       console.log("Material Side:", materialSide);
     }
   }
-  getColor();
+  getColor(x, y);
 });
 
 // Attach event listeners
@@ -151,7 +151,7 @@ console.log(webgl.scene);
 console.log(mesh);
 console.log(material);
 
-function getColor() {
+function getColor(xCoor, yCoor) {
   // Get the canvas elements and their 2D contexts
   const demo = document.getElementById("demo");
   const ctx = demo.getContext("2d");
@@ -170,9 +170,22 @@ function getColor() {
 
     // Calculate the aspect ratio of the canvas
     const canvasAspectRatio = canvasWidth / canvasHeight;
-
-    //   // Draw a red dot at coordinates (x, y), adjusting for aspect ratio
-    //   drawDot(ctx, 90, 90, 1, "red");
+    const imageData = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
+    console.log(imageData.data[200]);
+    var x = Math.floor(normalize_data(xCoor, 0, canvas.width, 0, canvasWidth));
+    var y = Math.floor(
+      normalize_data(yCoor, 0, canvas.height, 0, canvasHeight)
+    );
+    var r, g, b, a;
+    console.log(imageData.data);
+    // xCoordinate = normalize(event.clientX, 0, canvas.height);
+    // yCoordinate = normalize(event.clientY, 0, canvas.width);
+    r = imageData.data[(y * imageData.width + x) * 4];
+    g = imageData.data[(y * imageData.width + x) * 4 + 1];
+    b = imageData.data[(y * imageData.width + x) * 4 + 2];
+    a = imageData.data[(y * imageData.width + x) * 4 + 3];
+    console.log("Color:", r, g, b, a);
+    console.log("Clicked at coordinates: (" + x + ", " + y + ")");
   };
 }
 
@@ -184,4 +197,11 @@ function captureImage() {
   const imageDataURL = renderer.domElement.toDataURL("image/png");
   console.log(imageDataURL);
   return imageDataURL;
+}
+
+function normalize_data(value, XMin, XMax, newMin, newMax) {
+  var normalizedValue =
+    newMin + ((value - XMin) / (XMax - XMin)) * (newMax - newMin);
+  console.log(normalizedValue);
+  return normalizedValue;
 }
