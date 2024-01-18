@@ -327,7 +327,7 @@ texture = new THREE.TextureLoader().load("textures/uv.jpeg", (texture) => {
   quaternion.normalize();
   mesh.setRotationFromQuaternion(quaternion);
 
-  // add lights
+  // // add lights
   const directionalLight = new THREE.DirectionalLight("#ffffff", 0.5);
   directionalLight.position.set(0, 10, 10);
   webgl.scene.add(directionalLight);

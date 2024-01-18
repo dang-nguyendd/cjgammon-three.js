@@ -29,7 +29,7 @@ const camera = new THREE.PerspectiveCamera(60, 1, 0.01, 30);
 camera.position.set(0, 0, 10);
 camera.lookAt(0, 0, 0);
 const helper = new THREE.CameraHelper(camera);
-webgl.scene.add(helper);
+// webgl.scene.add(helper);
 
 // attach it to the window to inspect in the console
 window.webgl = webgl;
@@ -43,29 +43,54 @@ geometry.clearGroups();
 /*Loading Mesh file*/
 var gltf;
 var texture;
-texture = new THREE.TextureLoader().load("textures/test_final_perspective.png");
+var materials = [];
+texture = new THREE.TextureLoader().load(
+  "textures/thermal_cube_perspective.png",
+  () => {
+    getMassColor();
+  }
+);
 console.log(texture);
 // load the envMap
-const envMap = new THREE.TextureLoader().load("textures/bg.jpg");
-envMap.mapping = THREE.EquirectangularReflectionMapping;
+// const envMap = new THREE.TextureLoader().load("textures/bg.jpg");
+// envMap.mapping = THREE.EquirectangularReflectionMapping;
 
 var material;
 material = new ProjectedMaterial({
   camera,
   texture,
-  envMap,
   textureScale: 1,
   flatShading: true,
   transparent: true,
 });
-webgl.scene.background = envMap;
+materials.push(material);
+geometry.addGroup(0, Infinity, 0);
+
+texture = new THREE.TextureLoader().load(
+  "textures/thermal_cube_perspective_2.png",
+  () => {
+    getMassColor();
+  }
+);
+material = new ProjectedMaterial({
+  camera,
+  texture,
+  textureScale: 1,
+  flatShading: true,
+  transparent: true,
+});
+
+materials.push(material);
+geometry.addGroup(0, Infinity, 1);
+
+// webgl.scene.background = envMap;
 webgl.gui.add({ scaling: 1 }, "scaling", 0, 2);
 
 webgl.gui.onChange((scaling) => {
   material.textureScale = scaling.value;
   console.log(scaling.value);
 });
-const mesh = new THREE.Mesh(geometry, material);
+const mesh = new THREE.Mesh(geometry, materials);
 const quaternion = new THREE.Quaternion(
   -0.221083,
   0.468124,
@@ -73,7 +98,13 @@ const quaternion = new THREE.Quaternion(
   0.500046
 );
 mesh.setRotationFromQuaternion(quaternion);
-mesh.material.project(mesh);
+mesh.material[0].project(mesh);
+// const yAxis = new THREE.Quaternion(0, 0, 1, 0);
+// const oppositeQuaternion = yAxis.clone().multiply(quaternion);
+// oppositeQuaternion.invert();
+// mesh.setRotationFromQuaternion(oppositeQuaternion);
+mesh.rotation.y = Math.PI;
+mesh.material[1].project(mesh);
 
 // webgl.camera.setRotationFromQuaternion(quaternion);
 // webgl.orbitControls.update();
@@ -129,12 +160,8 @@ webgl.onPointerUp((event, { x, y, dragX, dragY }) => {
     console.log("2. Intersection UV:", intersectionUV);
 
     // Check if the material is defined before accessing properties
-    if (intersects[0].object.material) {
-      const materialSide = intersects[0].object.material.side;
-      console.log("Material Side:", materialSide);
-    }
+    getColor(x, y);
   }
-  getColor(x, y);
 });
 
 // Attach event listeners
@@ -151,6 +178,61 @@ console.log(webgl.scene);
 console.log(mesh);
 console.log(material);
 
+function getMassColor() {
+  const colorMap = {};
+  const demo = document.getElementById("demo");
+  const ctx = demo.getContext("2d");
+  demo.style.width = webgl.width / 3;
+  demo.style.height = webgl.height / 3;
+  const canvasWidth = webgl.width / 4;
+  const canvasHeight = webgl.height / 4;
+  // Create an Image object
+  const img = new Image();
+  img.src = captureImage();
+
+  // Wait for the image to load
+  img.onload = function () {
+    // Draw the image onto the canvas, maintaining the aspect ratio
+
+    ctx.drawImage(img, 0, 0, canvasWidth, canvasHeight);
+    const imageData = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
+
+    for (let xCoor = 0; xCoor < webgl.width; xCoor++) {
+      for (let yCoor = 0; yCoor < webgl.height; yCoor++) {
+        raycaster.setFromCamera({ xCoor, yCoor }, webgl.camera);
+        const intersects = raycaster.intersectObjects(webgl.scene.children);
+
+        if (intersects.length > 0) {
+          var x = Math.floor(
+            normalize_data(xCoor, 0, canvas.width, 0, canvasWidth)
+          );
+          var y = Math.floor(
+            normalize_data(yCoor, 0, canvas.height, 0, canvasHeight)
+          );
+          var r, g, b, a;
+          console.log(imageData.data);
+          // xCoordinate = normalize(event.clientX, 0, canvas.height);
+          // yCoordinate = normalize(event.clientY, 0, canvas.width);
+          r = imageData.data[(y * imageData.width + x) * 4];
+          g = imageData.data[(y * imageData.width + x) * 4 + 1];
+          b = imageData.data[(y * imageData.width + x) * 4 + 2];
+          a = imageData.data[(y * imageData.width + x) * 4 + 3];
+          hexColor = rgbToHex(255, 0, 0); // Returns "#FF0000"
+
+          // Perform raycasting to find intersected objects
+
+          colorMap[hexColor] = intersects[0].point;
+        }
+      }
+    }
+    console.log(colorMap);
+  };
+}
+
+function rgbToHex(r, g, b) {
+  return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+}
+
 function getColor(xCoor, yCoor) {
   // Get the canvas elements and their 2D contexts
   const demo = document.getElementById("demo");
@@ -161,17 +243,14 @@ function getColor(xCoor, yCoor) {
 
   // Wait for the image to load
   img.onload = function () {
-    const aspectRatio = img.width / img.height;
+    demo.style.width = webgl.width / 3;
+    demo.style.height = webgl.height / 3;
 
     // Draw the image onto the canvas, maintaining the aspect ratio
-    const canvasWidth = demo.width;
-    const canvasHeight = demo.height;
+    const canvasWidth = webgl.width / 4;
+    const canvasHeight = webgl.height / 4;
     ctx.drawImage(img, 0, 0, canvasWidth, canvasHeight);
-
-    // Calculate the aspect ratio of the canvas
-    const canvasAspectRatio = canvasWidth / canvasHeight;
     const imageData = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
-    console.log(imageData.data[200]);
     var x = Math.floor(normalize_data(xCoor, 0, canvas.width, 0, canvasWidth));
     var y = Math.floor(
       normalize_data(yCoor, 0, canvas.height, 0, canvasHeight)
@@ -191,7 +270,7 @@ function getColor(xCoor, yCoor) {
 
 function captureImage() {
   const renderer = new THREE.WebGLRenderer();
-  // renderer.setSize(webgl.height, webgl.width);
+  renderer.setSize(webgl.width / 2, webgl.height / 2);
   renderer.render(webgl.scene, webgl.camera);
   // Capture the rendered image as a data URL
   const imageDataURL = renderer.domElement.toDataURL("image/png");

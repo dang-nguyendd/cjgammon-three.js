@@ -28,7 +28,7 @@ camera.lookAt(0, 0, 0);
 // Create a cube geometry
 const geometry = new THREE.BoxGeometry(2, 2, 2);
 
-textureLoader.load("textures/uv.jpeg", (texture) => {
+textureLoader.load("textures/Thermal_cube.png", (texture) => {
   const material = new THREE.MeshStandardMaterial({
     map: texture,
   });
@@ -69,7 +69,15 @@ textureLoader.load("textures/uv.jpeg", (texture) => {
     0.500046
   );
   cube.setRotationFromQuaternion(quaternion);
+  cube.rotation.y = Math.PI;
+  // const yAxis = new THREE.Quaternion(0, 0, 1, 0);
+  // const oppositeQuaternion = yAxis.clone().multiply(quaternion);
+  // const angle = quaternion.angleTo(oppositeQuaternion);
+  // // Convert radians to degrees using THREE.MathUtils.radToDeg
+  // const angleInDegrees = THREE.MathUtils.radToDeg(angle);
 
+  // const oppositeQuaternion = quaternion.clone().conjugate();
+  // cube.setRotationFromQuaternion(oppositeQuaternion);
   // animate();
 
   // Function to capture the image
