@@ -10,6 +10,7 @@ import ProjectedMaterial from "https://unpkg.com/three-projected-material/build/
 import { random } from "../math-utils.js";
 import { loadGltf, extractGeometry } from "../three-utils.js";
 import "numeric";
+
 // grab our canvas
 const canvas = document.querySelector("#myCanvas");
 // WebGLApp is a really basic wrapper around the three.js setup,
@@ -164,18 +165,19 @@ document.addEventListener("keypress", (event) => {
   if (event.key === "p") {
     // Code to execute when 's' is pressed
     console.log("'p' key pressed!");
-    const muse = new THREE.Vector2();
+    getMassColor();
+    // const muse = new THREE.Vector2();
 
-    muse.x = (501.6000061035156 / window.innerWidth) * 2 - 1;
-    muse.y = -(284.6000061035156 / window.innerHeight) * 2 + 1;
-    // muse.x.normalize() * 2 - 1;
-    // muse.y.normalize() * 2 + 1;
-    //Vector2 {x: -0.0940325497287523, y: 0.1827338129496403}
+    // muse.x = (501.6000061035156 / window.innerWidth) * 2 - 1;
+    // muse.y = -(284.6000061035156 / window.innerHeight) * 2 + 1;
+    // // muse.x.normalize() * 2 - 1;
+    // // muse.y.normalize() * 2 + 1;
+    // //Vector2 {x: -0.0940325497287523, y: 0.1827338129496403}
 
-    raycaster.setFromCamera(muse, webgl.camera);
-    const intersects = raycaster.intersectObjects(webgl.scene.children);
-    console.log(intersects);
-    console.log(muse);
+    // raycaster.setFromCamera(muse, webgl.camera);
+    // const intersects = raycaster.intersectObjects(webgl.scene.children);
+    // console.log(intersects);
+    // console.log(muse);
   }
 });
 
@@ -194,7 +196,7 @@ console.log(mesh);
 console.log(material);
 
 function getMassColor() {
-  const colorMap = {};
+  var colorMap = [];
   const demo = document.getElementById("demo");
   const ctx = demo.getContext("2d");
   demo.style.width = webgl.width / 3;
@@ -212,36 +214,50 @@ function getMassColor() {
     ctx.drawImage(img, 0, 0, canvasWidth, canvasHeight);
     const imageData = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
     console.log(imageData);
+    var count = 0;
 
-    // for (let xCoor = 0; xCoor < webgl.width; xCoor++) {
-    //   for (let yCoor = 0; yCoor < webgl.height; yCoor++) {
-    //     raycaster.setFromCamera({ xCoor, yCoor }, webgl.camera);
-    //     const intersects = raycaster.intersectObjects(webgl.scene.children);
-    //     console.log(intersects);
-    //     if (intersects.length > 0) {
-    //       var x = Math.floor(
-    //         normalize_data(xCoor, 0, canvas.width, 0, canvasWidth)
-    //       );
-    //       var y = Math.floor(
-    //         normalize_data(yCoor, 0, canvas.height, 0, canvasHeight)
-    //       );
-    //       var r, g, b, a;
+    for (let xCoor = 0; xCoor < webgl.width; xCoor++) {
+      for (let yCoor = 0; yCoor < webgl.height; yCoor++) {
+        var muse = new THREE.Vector2();
+        muse.x = (xCoor / window.innerWidth) * 2 - 1;
+        muse.y = -(yCoor / window.innerHeight) * 2 + 1;
+        // muse.x.normalize() * 2 - 1;
+        // muse.y.normalize() * 2 + 1;
+        //Vector2 {x: -0.0940325497287523, y: 0.1827338129496403}
 
-    //       // xCoordinate = normalize(event.clientX, 0, canvas.height);
-    //       // yCoordinate = normalize(event.clientY, 0, canvas.width);
-    //       r = imageData.data[(y * imageData.width + x) * 4];
-    //       g = imageData.data[(y * imageData.width + x) * 4 + 1];
-    //       b = imageData.data[(y * imageData.width + x) * 4 + 2];
-    //       a = imageData.data[(y * imageData.width + x) * 4 + 3];
-    //       hexColor = rgbToHex(255, 0, 0); // Returns "#FF0000"
+        raycaster.setFromCamera(muse, webgl.camera);
+        var intersects = raycaster.intersectObjects(webgl.scene.children);
+        if (intersects.length > 0) {
+          count++;
+          var x = Math.floor(
+            normalize_data(xCoor, 0, canvas.width, 0, canvasWidth)
+          );
+          var y = Math.floor(
+            normalize_data(yCoor, 0, canvas.height, 0, canvasHeight)
+          );
+          var r, g, b, a;
 
-    //       // Perform raycasting to find intersected objects
+          // xCoordinate = normalize(event.clientX, 0, canvas.height);
+          // yCoordinate = normalize(event.clientY, 0, canvas.width);
+          r = imageData.data[(y * imageData.width + x) * 4];
+          g = imageData.data[(y * imageData.width + x) * 4 + 1];
+          b = imageData.data[(y * imageData.width + x) * 4 + 2];
+          a = imageData.data[(y * imageData.width + x) * 4 + 3];
+          var hexColor = rgbToHex(r, g, b);
+          var result = {
+            hex: hexColor,
+            coordinate: intersects[0].point,
+          };
 
-    //       colorMap[hexColor] = intersects[0].point;
-    //     }
-    //   }
-    // }
+          // Perform raycasting to find intersected objects
+
+          colorMap.push(result);
+          // colorMap.push(intersects[0].point);
+        }
+      }
+    }
     console.log(colorMap);
+    extractColor(colorMap);
   };
 }
 
@@ -272,15 +288,15 @@ function getColor(xCoor, yCoor) {
       normalize_data(yCoor, 0, canvas.height, 0, canvasHeight)
     );
     var r, g, b, a;
-    console.log(imageData.data);
+    // console.log(imageData.data);
     // xCoordinate = normalize(event.clientX, 0, canvas.height);
     // yCoordinate = normalize(event.clientY, 0, canvas.width);
     r = imageData.data[(y * imageData.width + x) * 4];
     g = imageData.data[(y * imageData.width + x) * 4 + 1];
     b = imageData.data[(y * imageData.width + x) * 4 + 2];
     a = imageData.data[(y * imageData.width + x) * 4 + 3];
-    console.log("Color:", r, g, b, a);
-    console.log("Clicked at coordinates: (" + x + ", " + y + ")");
+    // console.log("Color:", r, g, b, a);
+    // console.log("Clicked at coordinates: (" + x + ", " + y + ")");
   };
 }
 
@@ -297,6 +313,16 @@ function captureImage() {
 function normalize_data(value, XMin, XMax, newMin, newMax) {
   var normalizedValue =
     newMin + ((value - XMin) / (XMax - XMin)) * (newMax - newMin);
-  console.log(normalizedValue);
+  // console.log(normalizedValue);
   return normalizedValue;
+}
+function extractColor(array) {
+  const jsonString = JSON.stringify(array, null, 4);
+  const blob = new Blob([jsonString], { type: "application/json" });
+  const downloadLink = document.createElement("a");
+  downloadLink.href = URL.createObjectURL(blob);
+  downloadLink.download = "output_color.json";
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  document.body.removeChild(downloadLink);
 }

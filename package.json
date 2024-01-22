@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "fs": "^0.0.1-security",
     "lil-gui": "^0.19.1",
     "npm": "^10.2.4",
     "numeric": "^1.2.6",
