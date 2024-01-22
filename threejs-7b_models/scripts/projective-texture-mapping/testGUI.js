@@ -45,10 +45,7 @@ var gltf;
 var texture;
 var materials = [];
 texture = new THREE.TextureLoader().load(
-  "textures/thermal_cube_perspective.png",
-  () => {
-    getMassColor();
-  }
+  "textures/thermal_cube_perspective.png"
 );
 console.log(texture);
 // load the envMap
@@ -67,10 +64,7 @@ materials.push(material);
 geometry.addGroup(0, Infinity, 0);
 
 texture = new THREE.TextureLoader().load(
-  "textures/thermal_cube_perspective_2.png",
-  () => {
-    getMassColor();
-  }
+  "textures/thermal_cube_perspective_2.png"
 );
 material = new ProjectedMaterial({
   camera,
@@ -140,6 +134,9 @@ webgl.onPointerUp((event, { x, y, dragX, dragY }) => {
   if (Math.hypot(dragX, dragY) > 2) {
     return;
   }
+  console.log(mouse);
+  console.log(event.clientX);
+  console.log(event.clientY);
 
   // Update the raycaster with the current mouse coordinates
   raycaster.setFromCamera(mouse, webgl.camera);
@@ -161,6 +158,24 @@ webgl.onPointerUp((event, { x, y, dragX, dragY }) => {
 
     // Check if the material is defined before accessing properties
     getColor(x, y);
+  }
+});
+document.addEventListener("keypress", (event) => {
+  if (event.key === "p") {
+    // Code to execute when 's' is pressed
+    console.log("'p' key pressed!");
+    const muse = new THREE.Vector2();
+
+    muse.x = (501.6000061035156 / window.innerWidth) * 2 - 1;
+    muse.y = -(284.6000061035156 / window.innerHeight) * 2 + 1;
+    // muse.x.normalize() * 2 - 1;
+    // muse.y.normalize() * 2 + 1;
+    //Vector2 {x: -0.0940325497287523, y: 0.1827338129496403}
+
+    raycaster.setFromCamera(muse, webgl.camera);
+    const intersects = raycaster.intersectObjects(webgl.scene.children);
+    console.log(intersects);
+    console.log(muse);
   }
 });
 
@@ -196,35 +211,36 @@ function getMassColor() {
 
     ctx.drawImage(img, 0, 0, canvasWidth, canvasHeight);
     const imageData = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
+    console.log(imageData);
 
-    for (let xCoor = 0; xCoor < webgl.width; xCoor++) {
-      for (let yCoor = 0; yCoor < webgl.height; yCoor++) {
-        raycaster.setFromCamera({ xCoor, yCoor }, webgl.camera);
-        const intersects = raycaster.intersectObjects(webgl.scene.children);
+    // for (let xCoor = 0; xCoor < webgl.width; xCoor++) {
+    //   for (let yCoor = 0; yCoor < webgl.height; yCoor++) {
+    //     raycaster.setFromCamera({ xCoor, yCoor }, webgl.camera);
+    //     const intersects = raycaster.intersectObjects(webgl.scene.children);
+    //     console.log(intersects);
+    //     if (intersects.length > 0) {
+    //       var x = Math.floor(
+    //         normalize_data(xCoor, 0, canvas.width, 0, canvasWidth)
+    //       );
+    //       var y = Math.floor(
+    //         normalize_data(yCoor, 0, canvas.height, 0, canvasHeight)
+    //       );
+    //       var r, g, b, a;
 
-        if (intersects.length > 0) {
-          var x = Math.floor(
-            normalize_data(xCoor, 0, canvas.width, 0, canvasWidth)
-          );
-          var y = Math.floor(
-            normalize_data(yCoor, 0, canvas.height, 0, canvasHeight)
-          );
-          var r, g, b, a;
-          console.log(imageData.data);
-          // xCoordinate = normalize(event.clientX, 0, canvas.height);
-          // yCoordinate = normalize(event.clientY, 0, canvas.width);
-          r = imageData.data[(y * imageData.width + x) * 4];
-          g = imageData.data[(y * imageData.width + x) * 4 + 1];
-          b = imageData.data[(y * imageData.width + x) * 4 + 2];
-          a = imageData.data[(y * imageData.width + x) * 4 + 3];
-          hexColor = rgbToHex(255, 0, 0); // Returns "#FF0000"
+    //       // xCoordinate = normalize(event.clientX, 0, canvas.height);
+    //       // yCoordinate = normalize(event.clientY, 0, canvas.width);
+    //       r = imageData.data[(y * imageData.width + x) * 4];
+    //       g = imageData.data[(y * imageData.width + x) * 4 + 1];
+    //       b = imageData.data[(y * imageData.width + x) * 4 + 2];
+    //       a = imageData.data[(y * imageData.width + x) * 4 + 3];
+    //       hexColor = rgbToHex(255, 0, 0); // Returns "#FF0000"
 
-          // Perform raycasting to find intersected objects
+    //       // Perform raycasting to find intersected objects
 
-          colorMap[hexColor] = intersects[0].point;
-        }
-      }
-    }
+    //       colorMap[hexColor] = intersects[0].point;
+    //     }
+    //   }
+    // }
     console.log(colorMap);
   };
 }
