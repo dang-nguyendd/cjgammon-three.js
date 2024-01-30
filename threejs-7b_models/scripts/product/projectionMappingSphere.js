@@ -10,9 +10,6 @@ import {
   dataExtraction,
   onMouseMove,
   addLights,
-  setCameraDistance,
-  createMaterial,
-  importModel,
   setCameraDistanceSphere,
   materials,
   createMultipleMaterials,
@@ -22,7 +19,7 @@ import {
 const canvas = document.querySelector("#myCanvas");
 const webgl = new WebGLApp({
   canvas,
-  background: "#000000",
+  background: "#fff",
   showFps: true,
   orbitControls: true,
 });

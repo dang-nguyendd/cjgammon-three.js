@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { monkeyPatch, addLoadListener } from "../three-utils.js";
+import { monkeyPatch, addLoadListener } from "./three-utils.js";
 
 export default class ProjectedMaterial extends THREE.MeshPhysicalMaterial {
   // internal values... they are exposed via getters
