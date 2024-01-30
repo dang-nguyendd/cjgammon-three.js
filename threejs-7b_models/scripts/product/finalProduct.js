@@ -360,39 +360,39 @@ function findMinMaxHexColor(hexColors) {
   return { minColor, maxColor };
 }
 
-async function loadHexValuesFromFile(filePath) {
-  try {
-    const response = await fetch(filePath);
-    const jsonData = await response.json();
-    const hexValues = jsonData.data.map((item) => item.hex); // Extract hex values
-    console.log(findMinMaxHexColor(hexValues)); // Return the array of hex values
-  } catch (error) {
-    console.error("Error loading JSON file:", error);
-    return []; // Return an empty array on error
-  }
-}
+// async function loadHexValuesFromFile(filePath) {
+//   try {
+//     const response = await fetch(filePath);
+//     const jsonData = await response.json();
+//     const hexValues = jsonData.data.map((item) => item.hex); // Extract hex values
+//     console.log(findMinMaxHexColor(hexValues)); // Return the array of hex values
+//   } catch (error) {
+//     console.error("Error loading JSON file:", error);
+//     return []; // Return an empty array on error
+//   }
+// }
 
-function hexToThermal(hexColors) {
-  const maxThermal = 100;
-  const minThermal = 10;
-  const maxHex = "a0ff95";
-  const minHex = "000000";
-  // Validate input
-  if (!Array.isArray(hexColors)) {
-    throw new Error("Invalid input: Array of hex colors expected.");
-  }
+// function hexToThermal(hexColors) {
+//   const maxThermal = 100;
+//   const minThermal = 10;
+//   const maxHex = "a0ff95";
+//   const minHex = "000000";
+//   // Validate input
+//   if (!Array.isArray(hexColors)) {
+//     throw new Error("Invalid input: Array of hex colors expected.");
+//   }
 
-  const colorRange = parseInt(maxHex, 16) - parseInt(minHex, 16); // Calculate hex range
+//   const colorRange = parseInt(maxHex, 16) - parseInt(minHex, 16); // Calculate hex range
 
-  return hexColors.map((hex) => {
-    const value = parseInt(hex.slice(1), 16); // Get integer value without #
-    const normalizedValue = value / colorRange; // Normalize between 0 and 1
-    const thermalValue =
-      Math.round(normalizedValue * (maxThermal - minThermal)) + minThermal;
+//   return hexColors.map((hex) => {
+//     const value = parseInt(hex.slice(1), 16); // Get integer value without #
+//     const normalizedValue = value / colorRange; // Normalize between 0 and 1
+//     const thermalValue =
+//       Math.round(normalizedValue * (maxThermal - minThermal)) + minThermal;
 
-    return thermalValue;
-  });
-}
+//     return thermalValue;
+//   });
+// }
 
 async function ExtractThermalFromJson(filePath) {
   try {

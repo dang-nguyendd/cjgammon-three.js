@@ -1,9 +1,5 @@
 > Three.js Material which lets you do [Texture Projection](https://en.wikipedia.org/wiki/Projective_texture_mapping) on a 3d Model.
 
-<p align="center">
-  <a href="https://marcofugaro.github.io/three-projected-material/"><img src="screenshot.png" width="700"></a>
-</p>
-
 ## Installation
 
 After having installed three.js, install it from npm with:
@@ -116,3 +112,89 @@ After calling this method, you can move the mesh or the camera freely.
 | Option | Description                                          |
 | ------ | ---------------------------------------------------- |
 | `mesh` | The mesh that has a `ProjectedMaterial` as material. |
+
+### Data Extraction Pipeline
+
+<p align="center">
+  <a href="threejs-7b_models\document_images\Camera_explanation.png"><img src="threejs-7b_models\document_images\Camera_explanation.png" width="1000"></a>
+</p>
+
+### Raycaster for extracting 3D coordinates
+
+In Three.js, a raycaster is an object that allows you to perform raycasting, which is a technique used to determine what objects in a 3D scene are intersected by a ray. This is particularly useful for tasks like picking or selecting objects in the scene based on user interactions like mouse clicks or touches.
+
+Creating object:
+
+```js
+const raycaster = new THREE.Raycaster();
+```
+
+Then, you can use it like this:
+
+```js
+raycaster.setFromCamera(mouse, webgl.camera);
+// Perform raycasting to find intersected objects
+const intersects = raycaster.intersectObjects(webgl.scene.children);
+
+if (intersects.length > 0) {
+  // Get the first intersection point (closest to the camera)
+  const intersectionPoint = intersects[0].point;
+  const intersectionUV = intersects[0].uv;
+  // Use intersectionPoint as the 3D world coordinates of the clicked pixel
+  console.log("****************************************");
+  console.log("1. Intersection array:", intersects);
+}
+```
+
+### WebRenderer for 2D scene rendering
+
+WebRenderer is a graphics rendering engine specifically designed for rendering 3D scenes to 2D images in web applications. It allows developers to create interactive and visually appealing 3D graphics that can be displayed on web pages. The rendering process involves transforming a 3D scene into a 2D image that can be easily displayed on a web browser.
+
+Creating object:
+
+```js
+const renderer = new THREE.WebGLRenderer();
+```
+
+Then, you can use it like this:
+
+```js
+function captureImage() {
+  renderer.setSize(webgl.width, webgl.height);
+  renderer.render(webgl.scene, webgl.camera);
+  // Capture the rendered image as a data URL
+  const imageDataURL = renderer.domElement.toDataURL("image/png");
+  console.log(imageDataURL);
+  return imageDataURL;
+}
+```
+
+### Color extraction
+
+Once you have rendered the 3D scene to a 2D image, you can then extract color data from the 2D image given coordinate by using:
+
+```js
+img.onload = function () {
+  // demo.style.width = webgl.width / 3;
+  // demo.style.height = webgl.height / 3;
+
+  // Draw the image onto the canvas, maintaining the aspect ratio
+  const canvasWidth = webgl.width;
+  const canvasHeight = webgl.height;
+  ctx.drawImage(img, 0, 0, canvasWidth, canvasHeight);
+  const imageData = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
+  var x = Math.floor(xCoor, 0, canvas.width, 0, canvasWidth);
+  var y = Math.floor(yCoor, 0, canvas.height, 0, canvasHeight);
+  var r, g, b, a;
+  // console.log(imageData.data);
+  // xCoordinate = normalize(event.clientX, 0, canvas.height);
+  // yCoordinate = normalize(event.clientY, 0, canvas.width);
+  r = imageData.data[(y * imageData.width + x) * 4];
+  g = imageData.data[(y * imageData.width + x) * 4 + 1];
+  b = imageData.data[(y * imageData.width + x) * 4 + 2];
+  a = imageData.data[(y * imageData.width + x) * 4 + 3];
+  console.log("Color:", r, g, b, a);
+  // console.log("Clicked at coordinates: (" + x + ", " + y + ")");
+  document.body.removeChild(demo);
+};
+```
