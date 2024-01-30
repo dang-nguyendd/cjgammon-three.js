@@ -116,7 +116,15 @@ After calling this method, you can move the mesh or the camera freely.
 ### Data Extraction Pipeline
 
 <p align="center">
-  <a href="threejs-7b_models\document_images\Camera_explanation.png"><img src="threejs-7b_models\document_images\Camera_explanation.png" width="1000"></a>
+  <a href="threejs-7b_models\document_images\Data extracting pipeline.png"><img src="threejs-7b_models\document_images\Data extracting pipeline.png" width="1000"></a>
+</p>
+
+### Perspective Camera
+
+Once using projection mapping, you must learn the parameters of perspective camera
+
+<p align="center">
+  <a href="threejs-7b_models\document_images\Camera_constructor.jpg"><img src="threejs-7b_models\document_images\Camera_constructor.jpg" width="700"></a>
 </p>
 
 ### Raycaster for extracting 3D coordinates
